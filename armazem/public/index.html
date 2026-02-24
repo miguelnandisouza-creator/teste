@@ -713,7 +713,7 @@
                     <div class="promo-economia">💰 Economize R$ ${economia.toFixed(2).replace('.', ',')}</div>
                     <div class="promo-preco">
                         <div class="promo-valor">R$ ${p.preco_combo.toFixed(2).replace('.', ',')}</div>
-                        <button class="btn-adicionar" onclick="event.stopPropagation(); adicionarPromoComPrompt(${p.produto_id}, ${p.quantidade}, '${prod.nome.replace(/'/g, "\\'")}', ${p.preco_combo}, '${(p.descricao || '').replace(/'/g, "\\'")}')">➕ Adicionar</button>
+                        <button class="btn-adicionar" onclick="event.stopPropagation(); abrirSelectorPromo(${p.produto_id}, ${p.quantidade}, '${prod.nome.replace(/'/g, "\\'")}', ${p.preco_combo}, '${(p.descricao || '').replace(/'/g, "\\'")}')">➕ Adicionar</button>
                     </div>
                 </div>`;
             }).join('');
@@ -736,7 +736,7 @@
                             <div class="preco">R$ ${p.preco.toFixed(2).replace('.', ',')}</div>
                             <div class="estoque">
                                 <span class="estoque-badge">📦 ${p.quantidade} ${p.unidade}</span>
-                                <button class="btn-adicionar" onclick="event.stopPropagation(); adicionarProdutoComPrompt(${p.id}, '${p.nome.replace(/'/g, "\\'")}', ${p.preco})">➕ Adicionar</button>
+                                <button class="btn-adicionar" onclick="event.stopPropagation(); abrirSelectorProduto(${p.id}, '${p.nome.replace(/'/g, "\\'")}', ${p.preco}, ${p.quantidade})">➕ Adicionar</button>
                             </div>
                         </div>
                     </div>
@@ -834,6 +834,13 @@
         }
 
         function alterarSelectorQuantidade(delta) {
+            // ajustar quantidade tanto para produto quanto para promo
+            if (window.selectorPromo) {
+                const sp = window.selectorPromo;
+                sp.n = Math.max(1, (sp.n || 1) + delta);
+                document.getElementById('selectorQuantidade').textContent = sp.n;
+                return;
+            }
             const s = window.selectorProduto;
             if (!s) return;
             s.quantidade = Math.max(1, Math.min(s.disponivel || 9999, (s.quantidade || 1) + delta));
@@ -841,12 +848,49 @@
         }
 
         function confirmarAdicionarDoSelector() {
+            // se estiver em modo promo, confirmar promo
+            if (window.selectorPromo) {
+                confirmarAdicionarPromo();
+                return;
+            }
             const s = window.selectorProduto;
             if (!s) return;
             adicionarProdutoCarrinho(s.id, s.nome, s.preco, s.quantidade);
             document.getElementById('modalProduto').style.display = 'none';
+            window.selectorProduto = null;
             atualizarListaCarrinho();
             atualizarBadgeCarrinho();
+        }
+
+        // --- Promo selector ---
+        function abrirSelectorPromo(id, qtyPerCombo, nome, precoCombo, descricao) {
+            window.selectorPromo = { id, qtyPerCombo, nome, precoCombo, descricao, n: 1 };
+            document.getElementById('produtoTitulo').textContent = nome + ' (Combo)';
+            document.getElementById('produtoPreco').textContent = 'R$ ' + precoCombo.toFixed(2).replace('.', ',');
+            document.getElementById('selectorQuantidade').textContent = '1';
+            document.getElementById('selectorDisponivel').textContent = qtyPerCombo;
+            document.getElementById('modalProduto').style.display = 'flex';
+        }
+
+        function confirmarAdicionarPromo() {
+            const sp = window.selectorPromo;
+            if (!sp) return;
+            const n = sp.n || 1;
+            const totalQty = sp.qtyPerCombo * n;
+            const totalComboPrice = sp.precoCombo * n;
+            const unitPrice = sp.precoCombo / sp.qtyPerCombo;
+            const existe = carrinho.find(i => i.produto_id === sp.id && i.promocao && i.precoCombo === sp.precoCombo && i.descricao === sp.descricao);
+            if (existe) {
+                existe.quantidade += totalQty;
+                existe.precoCombo = totalComboPrice;
+            } else {
+                carrinho.push({ produto_id: sp.id, nome: sp.nome, preco: unitPrice, quantidade: totalQty, promocao: true, precoCombo: totalComboPrice, descricao: sp.descricao });
+            }
+            salvarCarrinho();
+            atualizarBadgeCarrinho();
+            atualizarListaCarrinho();
+            document.getElementById('modalProduto').style.display = 'none';
+            window.selectorPromo = null;
         }
 
         function fecharCarrinho(event) {

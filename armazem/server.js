@@ -93,11 +93,16 @@ db.serialize(() => {
     db.get("SELECT COUNT(*) as count FROM produtos", (err, row) => {
         if (row.count === 0) {
             const produtos = [
-                ['Camiseta', 'Camiseta de cotton', 29.90, 100, 'roupas', 'un'],
-                ['Calça', 'Calça jeans', 89.90, 50, 'roupas', 'un'],
-                ['Tênis', 'Tênis esportivo', 199.90, 30, 'roupas', 'un'],
-                ['Boné', 'Boné masculino', 19.90, 80, 'roupas', 'un'],
-                ['Mochila', 'Mochila escolar', 59.90, 40, 'roupas', 'un']
+                ['Arroz 5kg', 'Arroz branco tipo 1 - 5kg', 24.90, 50, 'mercearia', 'un'],
+                ['Feijão Carioca 1kg', 'Feijão carioca', 9.99, 100, 'mercearia', 'kg'],
+                ['Açúcar 1kg', 'Açúcar cristal', 3.49, 80, 'mercearia', 'kg'],
+                ['Café 500g', 'Café torrado e moído', 7.99, 60, 'bebidas', 'un'],
+                ['Leite Integral 1L', 'Leite integral UHT', 4.50, 120, 'laticínios', 'un'],
+                ['Banana Prata (kg)', 'Banana prata por kg', 5.99, 200, 'hortifruti', 'kg'],
+                ['Pão Francês (10un)', 'Pão francês pacote 10un', 6.50, 70, 'padaria', 'un'],
+                ['Água Mineral 1.5L', 'Água mineral sem gás', 2.99, 150, 'bebidas', 'un'],
+                ['Óleo de Soja 900ml', 'Óleo de soja', 8.99, 90, 'mercearia', 'un'],
+                ['Sabão em Pó 1kg', 'Sabão em pó para roupas', 12.90, 60, 'limpeza', 'un']
             ];
             produtos.forEach(p => {
                 db.run("INSERT INTO produtos (nome, descricao, preco, quantidade, categoria, unidade) VALUES (?, ?, ?, ?, ?, ?)", p);

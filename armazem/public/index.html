@@ -605,7 +605,7 @@
             <a href="index.html">🏠 Início</a>
             <a href="login.html">👤 Login</a>
             <a href="cadastro.html">📝 Cadastre-se</a>
-            <a href="admin-login.html">⚙️ Área Admin</a>
+            <a href="admin-login.html" id="admin-link" style="display:none">⚙️ Área Admin</a>
         </div>
         <button class="carrinho-btn" onclick="abrirCarrinho()">
             🛒 Carrinho
@@ -685,13 +685,13 @@
                 if (!prod) return '';
                 const precoUnit = prod.preco * p.quantidade;
                 const economia = precoUnit - p.preco_combo;
-                return `<div class="promo-card" onclick="adicionarPromoCarrinho(${p.produto_id}, ${p.quantidade}, '${prod.nome}', ${p.preco_combo}, '${p.descricao}')">
+                return `<div class="promo-card" onclick="adicionarPromoCarrinho(${p.produto_id}, ${p.quantidade}, '${prod.nome.replace(/'/g, "\\'")}', ${p.preco_combo}, '${(p.descricao || '').replace(/'/g, "\\'")}')">
                     <div class="promo-header">${prod.nome}</div>
                     <div class="promo-descricao"><strong>${p.descricao}</strong></div>
                     <div class="promo-economia">💰 Economize R$ ${economia.toFixed(2).replace('.', ',')}</div>
                     <div class="promo-preco">
                         <div class="promo-valor">R$ ${p.preco_combo.toFixed(2).replace('.', ',')}</div>
-                        <button class="btn-adicionar" onclick="event.stopPropagation()">➕ Adicionar</button>
+                        <button class="btn-adicionar" onclick="event.stopPropagation(); adicionarPromoComPrompt(${p.produto_id}, ${p.quantidade}, '${prod.nome.replace(/'/g, "\\'")}', ${p.preco_combo}, '${(p.descricao || '').replace(/'/g, "\\'")}')">➕ Adicionar</button>
                     </div>
                 </div>`;
             }).join('');
@@ -704,21 +704,21 @@
                 return;
             }
             div.innerHTML = produtos.map(p => `
-                <div class="produto" onclick="adicionarProdutoCarrinho(${p.id}, '${p.nome}', ${p.preco})">
-                    <div class="produto-header">
-                        <h3>${p.nome}</h3>
-                        <span class="categoria">${p.categoria}</span>
-                    </div>
-                    <p>${p.descricao || 'Produto de qualidade'}</p>
-                    <div class="produto-info">
-                        <div class="preco">R$ ${p.preco.toFixed(2).replace('.', ',')}</div>
-                        <div class="estoque">
-                            <span class="estoque-badge">📦 ${p.quantidade} ${p.unidade}</span>
-                            <button class="btn-adicionar" onclick="event.stopPropagation(); adicionarProdutoCarrinho(${p.id}, '${p.nome}', ${p.preco})">➕ Adicionar</button>
+                    <div class="produto">
+                        <div class="produto-header">
+                            <h3>${p.nome}</h3>
+                            <span class="categoria">${p.categoria}</span>
+                        </div>
+                        <p>${p.descricao || 'Produto de qualidade'}</p>
+                        <div class="produto-info">
+                            <div class="preco">R$ ${p.preco.toFixed(2).replace('.', ',')}</div>
+                            <div class="estoque">
+                                <span class="estoque-badge">📦 ${p.quantidade} ${p.unidade}</span>
+                                <button class="btn-adicionar" onclick="event.stopPropagation(); adicionarProdutoComPrompt(${p.id}, '${p.nome.replace(/'/g, "\\'")}', ${p.preco})">➕ Adicionar</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
         }
 
         function filtrar(categoria) {
@@ -732,23 +732,48 @@
             }
         }
 
-        function adicionarProdutoCarrinho(id, nome, preco) {
+        function adicionarProdutoCarrinho(id, nome, preco, quantidade = 1) {
+            quantidade = parseInt(quantidade) || 1;
             const existe = carrinho.find(i => i.produto_id === id && !i.promocao);
             if (existe) {
-                existe.quantidade += 1;
+                existe.quantidade += quantidade;
             } else {
-                carrinho.push({ produto_id: id, nome, preco, quantidade: 1, promocao: false });
+                carrinho.push({ produto_id: id, nome, preco, quantidade: quantidade, promocao: false });
             }
             salvarCarrinho();
             atualizarBadgeCarrinho();
         }
 
-        function adicionarPromoCarrinho(id, qty, nome, precoCombo, descricao) {
-            const existe = carrinho.find(i => i.produto_id === id && i.promocao);
+        function adicionarProdutoComPrompt(id, nome, preco) {
+            const q = parseInt(prompt('Quantidade a adicionar?', '1')) || 1;
+            adicionarProdutoCarrinho(id, nome, preco, q);
+        }
+
+        function adicionarPromoCarrinho(id, qtyPerCombo, nome, precoCombo, descricao) {
+            const existe = carrinho.find(i => i.produto_id === id && i.promocao && i.precoCombo === precoCombo && i.descricao === descricao);
             if (existe) {
-                existe.quantidade += qty;
+                existe.quantidade += qtyPerCombo;
+                existe.precoCombo = precoCombo; // keep unit logic
             } else {
-                carrinho.push({ produto_id: id, nome, preco: precoCombo / qty, quantidade: qty, promocao: true, precoCombo, descricao });
+                const unitPrice = precoCombo / qtyPerCombo;
+                carrinho.push({ produto_id: id, nome, preco: unitPrice, quantidade: qtyPerCombo, promocao: true, precoCombo: precoCombo, descricao });
+            }
+            salvarCarrinho();
+            atualizarBadgeCarrinho();
+        }
+
+        function adicionarPromoComPrompt(id, qtyPerCombo, nome, precoCombo, descricao) {
+            const n = parseInt(prompt('Quantos combos deseja adicionar?', '1')) || 1;
+            const totalQty = qtyPerCombo * n;
+            const totalComboPrice = precoCombo * n;
+            // we'll add items as a promo with unit price = precoCombo/qtyPerCombo
+            const unitPrice = precoCombo / qtyPerCombo;
+            const existe = carrinho.find(i => i.produto_id === id && i.promocao && i.precoCombo === precoCombo && i.descricao === descricao);
+            if (existe) {
+                existe.quantidade += totalQty;
+                existe.precoCombo = totalComboPrice;
+            } else {
+                carrinho.push({ produto_id: id, nome, preco: unitPrice, quantidade: totalQty, promocao: true, precoCombo: totalComboPrice, descricao });
             }
             salvarCarrinho();
             atualizarBadgeCarrinho();
@@ -788,16 +813,30 @@
                 total += subtotal;
                 return `<div class="item-carrinho">
                     <div class="item-carrinho-info">
-                        <div class="item-carrinho-nome">${item.nome}</div>
+                        <div class="item-carrinho-nome">${item.nome}${item.promocao ? ' (Promo)' : ''}</div>
                         <div class="item-carrinho-qtd">${item.quantidade}x @ R$ ${item.preco.toFixed(2).replace('.', ',')}</div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
+                        <button class="btn-remover-item" onclick="alterarQuantidade(${idx}, -1)">−</button>
                         <div class="item-carrinho-preco">R$ ${subtotal.toFixed(2).replace('.', ',')}</div>
+                        <button class="btn-adicionar" onclick="alterarQuantidade(${idx}, 1)">+</button>
                         <button class="btn-remover-item" onclick="removerCarrinho(${idx})">✕</button>
                     </div>
                 </div>`;
             }).join('');
             div.innerHTML += `<div class="total-carrinho">Total: R$ ${total.toFixed(2).replace('.', ',')}</div>`;
+        }
+
+        function alterarQuantidade(idx, delta) {
+            const item = carrinho[idx];
+            if (!item) return;
+            item.quantidade = (item.quantidade || 0) + delta;
+            if (item.quantidade <= 0) {
+                carrinho.splice(idx, 1);
+            }
+            salvarCarrinho();
+            atualizarBadgeCarrinho();
+            atualizarListaCarrinho();
         }
 
         function removerCarrinho(idx) {

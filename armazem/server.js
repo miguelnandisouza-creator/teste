@@ -62,6 +62,14 @@ db.serialize(() => {
         FOREIGN KEY(produto_id) REFERENCES produtos(id)
     )`);
 
+    // Categorias
+    db.run(`CREATE TABLE IF NOT EXISTS categorias (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT UNIQUE NOT NULL,
+        descricao TEXT,
+        data_criacao TEXT
+    )`);
+
     // Promoções (combos)
     db.run(`CREATE TABLE IF NOT EXISTS promocoes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -95,6 +103,27 @@ db.serialize(() => {
                 db.run("INSERT INTO produtos (nome, descricao, preco, quantidade, categoria, unidade) VALUES (?, ?, ?, ?, ?, ?)", p);
             });
             console.log("Produtos de exemplo inseridos");
+        }
+    });
+
+    // Inserir categorias de exemplo se não existirem
+    db.get("SELECT COUNT(*) as count FROM categorias", (err, row) => {
+        if (row.count === 0) {
+            const categorias = [
+                ['roupas', 'Vestuário e acessórios'],
+                ['açougue', 'Carnes e derivados'],
+                ['hortifruti', 'Frutas, legumes e verduras'],
+                ['padaria', 'Pães e bolos'],
+                ['bebidas', 'Bebidas em geral'],
+                ['mercearia', 'Alimentos secos e artigos diversos'],
+                ['laticínios', 'Leite, queijo e derivados'],
+                ['limpeza', 'Produtos de limpeza']
+            ];
+            categorias.forEach(c => {
+                db.run("INSERT INTO categorias (nome, descricao, data_criacao) VALUES (?, ?, ?)", 
+                    [c[0], c[1], new Date().toISOString()]);
+            });
+            console.log("Categorias de exemplo inseridas");
         }
     });
 });
@@ -320,6 +349,75 @@ app.delete('/api/produtos/:id', (req, res) => {
     db.run("DELETE FROM produtos WHERE id = ?", [req.params.id], function(err) {
         if (err) return res.status(500).json({ erro: err.message });
         res.json({ sucesso: true });
+    });
+});
+
+// ==================== CATEGORIAS ====================
+
+// Listar categorias
+app.get('/api/categorias', (req, res) => {
+    db.all("SELECT * FROM categorias ORDER BY nome ASC", [], (err, rows) => {
+        if (err) return res.status(500).json({ erro: err.message });
+        res.json(rows || []);
+    });
+});
+
+// Criar categoria (admin)
+app.post('/api/categorias', (req, res) => {
+    const { nome, descricao } = req.body;
+    if (!nome) {
+        return res.status(400).json({ erro: "Nome da categoria é obrigatório" });
+    }
+    const data = new Date().toISOString();
+    db.run("INSERT INTO categorias (nome, descricao, data_criacao) VALUES (?, ?, ?)",
+        [nome, descricao || '', data], function(err) {
+        if (err) {
+            if (err.message.includes('UNIQUE constraint failed')) {
+                return res.status(400).json({ erro: "Categoria já existe" });
+            }
+            return res.status(500).json({ erro: err.message });
+        }
+        res.json({ sucesso: true, id: this.lastID });
+    });
+});
+
+// Atualizar categoria (admin)
+app.put('/api/categorias/:id', (req, res) => {
+    const { nome, descricao } = req.body;
+    const id = req.params.id;
+    
+    if (!nome) {
+        return res.status(400).json({ erro: "Nome da categoria é obrigatório" });
+    }
+    
+    db.run("UPDATE categorias SET nome = ?, descricao = ? WHERE id = ?", 
+        [nome, descricao || '', id], function(err) {
+        if (err) {
+            if (err.message.includes('UNIQUE constraint failed')) {
+                return res.status(400).json({ erro: "Categoria já existe" });
+            }
+            return res.status(500).json({ erro: err.message });
+        }
+        res.json({ sucesso: true });
+    });
+});
+
+// Deletar categoria (admin)
+app.delete('/api/categorias/:id', (req, res) => {
+    const id = req.params.id;
+    
+    // Verificar se há produtos com essa categoria
+    db.get("SELECT COUNT(*) as count FROM produtos WHERE categoria = (SELECT nome FROM categorias WHERE id = ?)", [id], (err, row) => {
+        if (err) return res.status(500).json({ erro: err.message });
+        
+        if (row.count > 0) {
+            return res.status(400).json({ erro: "Não é possível deletar. Existem produtos nesta categoria." });
+        }
+        
+        db.run("DELETE FROM categorias WHERE id = ?", [id], function(err) {
+            if (err) return res.status(500).json({ erro: err.message });
+            res.json({ sucesso: true });
+        });
     });
 });
 

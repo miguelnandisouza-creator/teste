@@ -499,6 +499,26 @@
                 font-size: 1.8em;
             }
 
+            header {
+                padding: 30px 15px;
+            }
+
+            .nav {
+                gap: 10px;
+                flex-wrap: wrap;
+                padding: 10px 0;
+            }
+
+            .nav a,
+            .nav button {
+                padding: 12px 15px;
+                font-size: 0.85em;
+            }
+
+            .container {
+                padding: 20px 12px;
+            }
+
             .form-cadastro {
                 grid-template-columns: 1fr;
             }
@@ -509,15 +529,160 @@
 
             .tabs {
                 flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .tabs button {
+                padding: 10px 15px;
+                font-size: 0.75em;
+            }
+
+            .card {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .card h2 {
+                font-size: 1.3em;
+                margin-bottom: 15px;
             }
 
             table {
-                font-size: 0.9em;
+                font-size: 0.85em;
             }
 
             th,
             td {
+                padding: 8px 10px;
+            }
+
+            .btn-editar,
+            .btn-excluir,
+            .btn-aprovar,
+            .btn-entregar {
+                padding: 5px 8px;
+                font-size: 0.7em;
+                margin-right: 3px;
+                margin-bottom: 5px;
+            }
+
+            .modal-content {
+                padding: 20px;
+                max-width: 90%;
+            }
+
+            .modal-content h3 {
+                font-size: 1.2em;
+            }
+
+            .modal-buttons {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .modal-buttons button {
                 padding: 10px;
+                font-size: 0.8em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.4em;
+            }
+
+            header p {
+                font-size: 0.9em;
+            }
+
+            .nav a,
+            .nav button {
+                padding: 10px 12px;
+                font-size: 0.7em;
+            }
+
+            .container {
+                padding: 15px 10px;
+            }
+
+            .card {
+                padding: 15px;
+                margin-bottom: 15px;
+                border-left: 4px solid #FFA500;
+            }
+
+            .card h2 {
+                font-size: 1.1em;
+                margin-bottom: 12px;
+            }
+
+            .form-cadastro input,
+            .form-cadastro select {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+
+            table {
+                font-size: 0.75em;
+                border-collapse: collapse;
+            }
+
+            th,
+            td {
+                padding: 6px 8px;
+            }
+
+            .btn-editar,
+            .btn-excluir,
+            .btn-aprovar,
+            .btn-entregar {
+                padding: 4px 6px;
+                font-size: 0.65em;
+                margin-right: 2px;
+                margin-bottom: 4px;
+                display: block;
+                width: 100%;
+                margin-top: 4px;
+            }
+
+            .status-pendente,
+            .status-aprovado,
+            .status-entregue {
+                padding: 4px 8px;
+                font-size: 0.75em;
+            }
+
+            .modal-content {
+                padding: 15px;
+                max-width: 95%;
+            }
+
+            .modal-content h3 {
+                font-size: 1em;
+            }
+
+            .modal-content input,
+            .modal-content select {
+                padding: 10px;
+                font-size: 0.9em;
+                margin: 10px 0;
+            }
+
+            .modal-buttons {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .modal-buttons button {
+                padding: 12px;
+                font-size: 0.85em;
+            }
+
+            .tabs button {
+                padding: 8px 12px;
+                font-size: 0.7em;
+                flex-shrink: 1;
+                min-width: auto;
             }
         }
     </style>
@@ -539,6 +704,7 @@
             <button onclick="mostrarTab('produtos')" class="active" id="tab-produtos">📦 Produtos</button>
             <button onclick="mostrarTab('pedidos')" id="tab-pedidos">📋 Pedidos</button>
             <button onclick="mostrarTab('promocoes')" id="tab-promocoes">🏷️ Promoções</button>
+            <button onclick="mostrarTab('categorias')" id="tab-categorias">🏷️ Categorias</button>
         </div>
 
         <!-- Tab Produtos -->
@@ -698,6 +864,55 @@
                 </table>
             </div>
         </div>
+
+        <!-- Tab Categorias -->
+        <div id="tab-categorias-content" style="display: none;">
+            <div class="card">
+                <h2>➕ Adicionar Nova Categoria</h2>
+                <form class="form-cadastro" id="formCategoria">
+                    <div class="form-group">
+                        <label for="categoriaNome">Nome da Categoria *</label>
+                        <input type="text" id="categoriaNome" placeholder="Ex: Alimentos, Eletrônicos..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoriaDesc">Descrição</label>
+                        <input type="text" id="categoriaDesc" placeholder="Ex: Alimentos frescos e perecíveis">
+                    </div>
+                    <button type="submit">Adicionar Categoria</button>
+                </form>
+                <div id="mensagemCategoria" class="mensagem"></div>
+            </div>
+
+            <div class="card">
+                <h2>📋 Lista de Categorias</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                            <th>Produtos</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaCategorias"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Categoria -->
+    <div id="modalEditarCategoria" class="modal">
+        <div class="modal-content">
+            <h3>✏️ Editar Categoria</h3>
+            <input type="hidden" id="editCategoriaId">
+            <input type="text" id="editCategoriaNome" placeholder="Nome da Categoria" required>
+            <input type="text" id="editCategoriaDesc" placeholder="Descrição">
+            <div class="modal-buttons">
+                <button class="salvar" onclick="salvarEdicaoCategoria()">Salvar</button>
+                <button class="cancelar" onclick="fecharModalCategoria()">Cancelar</button>
+            </div>
+        </div>
     </div>
 
     <!-- Modal Editar Produto -->
@@ -760,6 +975,7 @@
         let produtos = [];
         let pedidos = [];
         let promocoes = [];
+        let categorias = [];
 
         async function carregarProdutos() {
             const resp = await fetch('/api/admin/produtos');
@@ -877,15 +1093,145 @@
             }
         }
 
+        // ===== FUNÇÕES DE CATEGORIAS =====
+        async function carregarCategorias() {
+            try {
+                const resp = await fetch('/api/categorias');
+                categorias = await resp.json();
+                exibirCategorias();
+                atualizarSelectCategorias();
+            } catch (erro) {
+                console.error('Erro ao carregar categorias:', erro);
+            }
+        }
+
+        function exibirCategorias() {
+            const tbody = document.getElementById('tabelaCategorias');
+            tbody.innerHTML = categorias.map(c => {
+                const produtosComCategoria = produtos.filter(p => p.categoria === c.nome).length;
+                return `<tr>
+                    <td>${c.id}</td>
+                    <td><strong>${c.nome}</strong></td>
+                    <td>${c.descricao || '-'}</td>
+                    <td><span style="background: #e3f2fd; color: #1565c0; padding: 4px 8px; border-radius: 4px; font-weight: 700;">${produtosComCategoria}</span></td>
+                    <td>
+                        <button class="btn-editar" onclick="editarCategoria(${c.id})">✏️ Editar</button>
+                        <button class="btn-excluir" onclick="excluirCategoria(${c.id})">🗑️ Excluir</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function editarCategoria(id) {
+            const c = categorias.find(cat => cat.id === id);
+            if (!c) return;
+            document.getElementById('editCategoriaId').value = c.id;
+            document.getElementById('editCategoriaNome').value = c.nome;
+            document.getElementById('editCategoriaDesc').value = c.descricao || '';
+            document.getElementById('modalEditarCategoria').style.display = 'flex';
+        }
+
+        async function salvarEdicaoCategoria() {
+            const id = document.getElementById('editCategoriaId').value;
+            const dados = {
+                nome: document.getElementById('editCategoriaNome').value,
+                descricao: document.getElementById('editCategoriaDesc').value
+            };
+
+            if (!dados.nome.trim()) {
+                alert('Nome da categoria é obrigatório');
+                return;
+            }
+
+            try {
+                const resp = await fetch('/api/categorias/' + id, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+                const result = await resp.json();
+                if (result.sucesso) {
+                    fecharModalCategoria();
+                    carregarCategorias();
+                    carregarProdutos(); // Recarregar para atualizar dropdown
+                } else {
+                    alert('Erro ao editar: ' + result.erro);
+                }
+            } catch (erro) {
+                alert('Erro: ' + erro);
+            }
+        }
+
+        function fecharModalCategoria() {
+            document.getElementById('modalEditarCategoria').style.display = 'none';
+        }
+
+        async function excluirCategoria(id) {
+            const categoria = categorias.find(c => c.id === id);
+            if (!categoria) return;
+
+            if (!confirm(`Tem certeza que deseja excluir a categoria "${categoria.nome}"?`)) return;
+
+            try {
+                const resp = await fetch('/api/categorias/' + id, {
+                    method: 'DELETE'
+                });
+                const result = await resp.json();
+                if (result.sucesso) {
+                    carregarCategorias();
+                    carregarProdutos();
+                } else {
+                    alert('Erro: ' + result.erro);
+                }
+            } catch (erro) {
+                alert('Erro: ' + erro);
+            }
+        }
+
+        function atualizarSelectCategorias() {
+            const selects = [
+                document.getElementById('produtoCategoria'),
+                document.getElementById('editCategoria'),
+                document.getElementById('promocaoProduto')
+            ];
+
+            selects.forEach(select => {
+                if (select && select.id === 'produtoCategoria' || select.id === 'editCategoria') {
+                    const categoriasAtuais = categorias.map(c => c.nome);
+                    const options = Array.from(select.options);
+
+                    // Remover opções antigas (exceto a primeira)
+                    for (let i = options.length - 1; i > 0; i--) {
+                        if (!categoriasAtuais.includes(options[i].value) && options[i].value !== '') {
+                            select.removeChild(select.options[i]);
+                        }
+                    }
+
+                    // Adicionar novas categorias
+                    categorias.forEach(c => {
+                        if (!Array.from(select.options).map(o => o.value).includes(c.nome)) {
+                            const option = document.createElement('option');
+                            option.value = c.nome;
+                            option.textContent = c.nome;
+                            select.appendChild(option);
+                        }
+                    });
+                }
+            });
+        }
+
         function mostrarTab(tab) {
             document.getElementById('tab-produtos-content').style.display = tab === 'produtos' ? 'block' : 'none';
             document.getElementById('tab-pedidos-content').style.display = tab === 'pedidos' ? 'block' : 'none';
             document.getElementById('tab-promocoes-content').style.display = tab === 'promocoes' ? 'block' : 'none';
+            document.getElementById('tab-categorias-content').style.display = tab === 'categorias' ? 'block' : 'none';
             document.getElementById('tab-produtos').className = tab === 'produtos' ? 'active' : '';
             document.getElementById('tab-pedidos').className = tab === 'pedidos' ? 'active' : '';
             document.getElementById('tab-promocoes').className = tab === 'promocoes' ? 'active' : '';
+            document.getElementById('tab-categorias').className = tab === 'categorias' ? 'active' : '';
             if (tab === 'pedidos') carregarPedidos();
             if (tab === 'promocoes') carregarPromocoes();
+            if (tab === 'categorias') carregarCategorias();
         }
 
         function logout() {
@@ -899,6 +1245,9 @@
             }
             if (event.target === document.getElementById('modalEditarPromocao')) {
                 fecharModalPromocao();
+            }
+            if (event.target === document.getElementById('modalEditarCategoria')) {
+                fecharModalCategoria();
             }
         }
 
@@ -1018,6 +1367,43 @@
                 carregarPromocoes();
             }
         }
+
+        // Listener do formulário de categorias
+        document.getElementById('formCategoria').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nome = document.getElementById('categoriaNome').value.trim();
+            const descricao = document.getElementById('categoriaDesc').value.trim();
+
+            if (!nome) {
+                alert('Nome da categoria é obrigatório');
+                return;
+            }
+
+            const msg = document.getElementById('mensagemCategoria');
+            try {
+                const resp = await fetch('/api/categorias', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, descricao })
+                });
+                const result = await resp.json();
+                if (result.sucesso) {
+                    msg.className = 'mensagem sucesso';
+                    msg.textContent = '✅ Categoria adicionada com sucesso!';
+                    msg.style.display = 'block';
+                    document.getElementById('formCategoria').reset();
+                    carregarCategorias();
+                } else {
+                    msg.className = 'mensagem erro';
+                    msg.textContent = '❌ ' + result.erro;
+                    msg.style.display = 'block';
+                }
+            } catch (erro) {
+                msg.className = 'mensagem erro';
+                msg.textContent = '❌ Erro ao adicionar categoria';
+                msg.style.display = 'block';
+            }
+        });
 
         // ===== SISTEMA DE LEITURA DE CÓDIGO DE BARRAS =====
         let barcodeParcial = '';
@@ -1151,6 +1537,7 @@
         carregarProdutos();
         carregarPedidos();
         carregarPromocoes();
+        carregarCategorias();
 
         // Atualizar select de produtos quando carregar
         setTimeout(() => {

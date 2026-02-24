@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Armazém Parada Obrigatória</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Montserrat:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f8f8;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+            border-bottom: 8px solid #FFA500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(255, 165, 0, 0.05) 10px,
+                    rgba(255, 165, 0, 0.05) 20px);
+            pointer-events: none;
+        }
+
+        header>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            color: #FFA500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: #1a1a1a;
+            padding: 0;
+            text-align: center;
+            border-bottom: 4px solid #FFA500;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 18px 25px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .nav a:hover {
+            color: #FFA500;
+            background: rgba(255, 165, 0, 0.1);
+        }
+
+        .nav button {
+            background: linear-gradient(135deg, #c00 0%, #900 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .nav button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(200, 0, 0, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 35px 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #FFA500;
+        }
+
+        .tabs button {
+            padding: 14px 24px;
+            background: white;
+            border: 2px solid #ddd;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .tabs button:hover {
+            background: #f5f5f5;
+        }
+
+        .tabs button.active {
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            color: white;
+            border-color: #FFA500;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #FFA500;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            color: #1a1a1a;
+            font-size: 1.6em;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 3px solid #FFA500;
+            padding-bottom: 12px;
+        }
+
+        .form-cadastro {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #333;
+            font-weight: 700;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-cadastro input,
+        .form-cadastro select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-cadastro input:focus,
+        .form-cadastro select:focus {
+            outline: none;
+            border-color: #FFA500;
+            box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.1);
+        }
+
+        .form-cadastro button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+            align-self: flex-end;
+        }
+
+        .form-cadastro button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 165, 0, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        }
+
+        th {
+            color: white;
+            padding: 14px;
+            text-align: left;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9em;
+            border-bottom: 3px solid #FFA500;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #eee;
+            color: #666;
+        }
+
+        tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+
+        .btn-editar {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85em;
+            margin-right: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-editar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(33, 150, 243, 0.3);
+        }
+
+        .btn-excluir {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85em;
+            margin-right: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-excluir:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-aprovar {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85em;
+            margin-right: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-aprovar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(255, 165, 0, 0.3);
+        }
+
+        .btn-entregar {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-entregar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .status-pendente {
+            background: #FFF9E6;
+            color: #996600;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85em;
+        }
+
+        .status-aprovado {
+            background: #E8F5E9;
+            color: #2E7D32;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85em;
+        }
+
+        .status-entregue {
+            background: #E3F2FD;
+            color: #1565C0;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85em;
+        }
+
+        .mensagem {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+            display: none;
+            font-weight: 600;
+            border-left: 6px solid;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mensagem.erro {
+            background: #ffebee;
+            color: #c00;
+            border-left-color: #c00;
+        }
+
+        .mensagem.sucesso {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left-color: #2e7d32;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 35px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            color: #333;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            border-top: 6px solid #FFA500;
+        }
+
+        .modal-content h3 {
+            color: #1a1a1a;
+            font-size: 1.4em;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 0 20px 0;
+            border-bottom: 3px solid #FFA500;
+            padding-bottom: 12px;
+        }
+
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 12px;
+            margin: 12px 0;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .modal-content input:focus,
+        .modal-content select:focus {
+            outline: none;
+            border-color: #FFA500;
+            box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.1);
+        }
+
+        .modal-buttons {
+            margin-top: 25px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .modal-buttons button {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .modal-buttons .salvar {
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            color: white;
+        }
+
+        .modal-buttons .salvar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 165, 0, 0.3);
+        }
+
+        .modal-buttons .cancelar {
+            background: #ddd;
+            color: #333;
+        }
+
+        .modal-buttons .cancelar:hover {
+            background: #999;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .form-cadastro {
+                grid-template-columns: 1fr;
+            }
+
+            .form-cadastro button {
+                align-self: auto;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            th,
+            td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>⚙️ Painel Administrador</h1>
+        <p>Armazém Parada Obrigatória</p>
+    </header>
+
+    <nav class="nav">
+        <a href="index.html">🏠 Ver Site</a>
+        <button onclick="logout()">🚪 Sair</button>
+    </nav>
+
+    <div class="container">
+        <div class="tabs">
+            <button onclick="mostrarTab('produtos')" class="active" id="tab-produtos">📦 Produtos</button>
+            <button onclick="mostrarTab('pedidos')" id="tab-pedidos">📋 Pedidos</button>
+            <button onclick="mostrarTab('promocoes')" id="tab-promocoes">🏷️ Promoções</button>
+        </div>
+
+        <!-- Tab Produtos -->
+        <div id="tab-produtos-content">
+            <div class="card">
+                <h2>📱 Leitor de Código de Barras</h2>
+                <div style="display: grid; grid-template-columns: 1fr auto; gap: 12px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label for="leituraBarras">Escaneie o código de barras</label>
+                        <input type="text" id="leituraBarras" placeholder="Coloque o foco aqui e escaneie..."
+                            style="padding: 14px; font-size: 1.1em; border: 3px solid #FFA500;">
+                    </div>
+                    <div style="display: flex; align-items: flex-end;">
+                        <button type="button" onclick="limparLeitura()"
+                            style="padding: 12px 18px; background: #ddd; border: none; border-radius: 6px; cursor: pointer; font-weight: 700;">🔄
+                            Limpar</button>
+                    </div>
+                </div>
+                <div id="statusLeitura"
+                    style="display: none; padding: 12px; background: #e8f5e9; color: #2e7d32; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #2e7d32;">
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>➕ Cadastrar Novo Produto</h2>
+                <form class="form-cadastro" id="formProduto">
+                    <div class="form-group">
+                        <label for="produtoBarras">Código de Barras</label>
+                        <input type="text" id="produtoBarras" placeholder="Ex: 7891234567890">
+                    </div>
+                    <div class="form-group">
+                        <label for="produtoNome">Nome *</label>
+                        <input type="text" id="produtoNome" placeholder="Nome do produto" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="produtoDesc">Descrição</label>
+                        <input type="text" id="produtoDesc" placeholder="Descrição">
+                    </div>
+                    <div class="form-group">
+                        <label for="produtoPreco">Preço *</label>
+                        <input type="number" step="0.01" id="produtoPreco" placeholder="Ex: 10.50" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="produtoCategoria">Categoria *</label>
+                        <select id="produtoCategoria" required>
+                            <option value="">Selecione...</option>
+                            <option value="açougue">Açougue</option>
+                            <option value="hortifruti">Hortifruti</option>
+                            <option value="padaria">Padaria</option>
+                            <option value="bebidas">Bebidas</option>
+                            <option value="mercearia">Mercearia</option>
+                            <option value="laticínios">Laticínios</option>
+                            <option value="limpeza">Limpeza</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="produtoQtd">Quantidade *</label>
+                        <input type="number" id="produtoQtd" placeholder="Ex: 100" value="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="produtoUnidade">Unidade *</label>
+                        <select id="produtoUnidade" required>
+                            <option value="un">Unidade</option>
+                            <option value="kg">Kg</option>
+                            <option value="L">Litro</option>
+                        </select>
+                    </div>
+                    <button type="submit">Cadastrar Produto</button>
+                </form>
+                <div id="mensagemProduto" class="mensagem"></div>
+            </div>
+
+            <div class="card">
+                <h2>📦 Lista de Produtos</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Categoria</th>
+                            <th>Preço</th>
+                            <th>Estoque</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaProdutos"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab Pedidos -->
+        <div id="tab-pedidos-content" style="display: none;">
+            <div class="card">
+                <h2>📋 Pedidos dos Clientes</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Produto</th>
+                            <th>Qtd</th>
+                            <th>Total</th>
+                            <th>Data</th>
+                            <th>Pagamento</th>
+                            <th>Status</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaPedidos"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab Promoções -->
+        <div id="tab-promocoes-content" style="display: none;">
+            <div class="card">
+                <h2>➕ Criar Nova Promoção</h2>
+                <form class="form-cadastro" id="formPromocao">
+                    <div class="form-group">
+                        <label for="promocaoProduto">Produto *</label>
+                        <select id="promocaoProduto" required>
+                            <option value="">Selecione um produto...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="promocaoQtd">Quantidade *</label>
+                        <input type="number" id="promocaoQtd" placeholder="Ex: 2" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="promocaoPreco">Preço do Combo *</label>
+                        <input type="number" step="0.01" id="promocaoPreco" placeholder="Ex: 10.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="promocaoDesc">Descrição (ex: 2 por 10)</label>
+                        <input type="text" id="promocaoDesc" placeholder="Ex: Leve 2, pague R$ 10">
+                    </div>
+                    <button type="submit">Criar Promoção</button>
+                </form>
+                <div id="mensagemPromocao" class="mensagem"></div>
+            </div>
+
+            <div class="card">
+                <h2>🏷️ Promoções Ativas</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Produto</th>
+                            <th>Combo</th>
+                            <th>Preço</th>
+                            <th>Descrição</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaPromocoes"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Produto -->
+    <div id="modalEditar" class="modal">
+        <div class="modal-content">
+            <h3>✏️ Editar Produto</h3>
+            <input type="hidden" id="editId">
+            <input type="text" id="editNome" placeholder="Nome">
+            <input type="text" id="editDesc" placeholder="Descrição">
+            <input type="number" step="0.01" id="editPreco" placeholder="Preço">
+            <select id="editCategoria">
+                <option value="açougue">Açougue</option>
+                <option value="hortifruti">Hortifruti</option>
+                <option value="padaria">Padaria</option>
+                <option value="bebidas">Bebidas</option>
+                <option value="mercearia">Mercearia</option>
+                <option value="laticínios">Laticínios</option>
+                <option value="limpeza">Limpeza</option>
+            </select>
+            <input type="number" id="editQtd" placeholder="Quantidade">
+            <select id="editUnidade">
+                <option value="un">Unidade</option>
+                <option value="kg">Kg</option>
+                <option value="L">Litro</option>
+            </select>
+            <div class="modal-buttons">
+                <button class="salvar" onclick="salvarEdicao()">Salvar</button>
+                <button class="cancelar" onclick="fecharModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Promoção -->
+    <div id="modalEditarPromocao" class="modal">
+        <div class="modal-content">
+            <h3>✏️ Editar Promoção</h3>
+            <input type="hidden" id="editPromoId">
+            <input type="number" id="editPromoQtd" placeholder="Quantidade" required min="1">
+            <input type="number" step="0.01" id="editPromoPreco" placeholder="Preço do Combo" required>
+            <input type="text" id="editPromoDesc" placeholder="Descrição (ex: Leve 2, pague...)">
+            <div class="form-group" style="margin-top: 12px;">
+                <label for="editPromoAtiva">Status</label>
+                <select id="editPromoAtiva">
+                    <option value="1">Ativa</option>
+                    <option value="0">Inativa</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="salvar" onclick="salvarEdicaoPromocao()">Salvar</button>
+                <button class="cancelar" onclick="fecharModalPromocao()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if (!localStorage.getItem('admin')) {
+            window.location.href = 'admin-login.html';
+        }
+
+        let produtos = [];
+        let pedidos = [];
+        let promocoes = [];
+
+        async function carregarProdutos() {
+            const resp = await fetch('/api/admin/produtos');
+            produtos = await resp.json();
+            exibirProdutos();
+        }
+
+        function exibirProdutos() {
+            const tbody = document.getElementById('tabelaProdutos');
+            tbody.innerHTML = produtos.map(p => `<tr>
+                <td>${p.id}</td>
+                <td>${p.nome}</td>
+                <td>${p.categoria}</td>
+                <td>R$ ${p.preco.toFixed(2).replace('.', ',')}</td>
+                <td>${p.quantidade} ${p.unidade}</td>
+                <td>
+                    <button class="btn-editar" onclick="editarProduto(${p.id})">✏️ Editar</button>
+                    <button class="btn-excluir" onclick="excluirProduto(${p.id})">🗑️ Excluir</button>
+                </td>
+            </tr>`).join('');
+        }
+
+        async function carregarPedidos() {
+            const resp = await fetch('/api/pedidos');
+            pedidos = await resp.json();
+            exibirPedidos();
+        }
+
+        function exibirPedidos() {
+            const tbody = document.getElementById('tabelaPedidos');
+            tbody.innerHTML = pedidos.map(p => {
+                let statusClass = p.status === 'Pendente' ? 'status-pendente' : p.status === 'Aprovado' ? 'status-aprovado' : 'status-entregue';
+                let botao = '';
+                if (p.status === 'Pendente') {
+                    botao = `<button class="btn-aprovar" onclick="mudarStatus(${p.id}, 'Aprovado')">✓ Aprovar</button>`;
+                } else if (p.status === 'Aprovado') {
+                    botao = `<button class="btn-entregar" onclick="mudarStatus(${p.id}, 'Entregue')">📦 Entregar</button>`;
+                } else {
+                    botao = '<span style="color: #666;">Concluído</span>';
+                }
+                return `<tr>
+                    <td>${p.id}</td>
+                    <td>${p.cliente_nome}</td>
+                    <td>${p.produto_nome}</td>
+                    <td>${p.quantidade}</td>
+                    <td>R$ ${p.total.toFixed(2).replace('.', ',')}</td>
+                    <td>${new Date(p.data).toLocaleDateString('pt-BR')}</td>
+                    <td>${p.forma_pagamento || 'N/A'}</td>
+                    <td><span class="${statusClass}">${p.status}</span></td>
+                    <td>${botao}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function editarProduto(id) {
+            const p = produtos.find(prod => prod.id === id);
+            document.getElementById('editId').value = p.id;
+            document.getElementById('editNome').value = p.nome;
+            document.getElementById('editDesc').value = p.descricao;
+            document.getElementById('editPreco').value = p.preco;
+            document.getElementById('editCategoria').value = p.categoria;
+            document.getElementById('editQtd').value = p.quantidade;
+            document.getElementById('editUnidade').value = p.unidade;
+            document.getElementById('modalEditar').style.display = 'flex';
+        }
+
+        async function salvarEdicao() {
+            const id = document.getElementById('editId').value;
+            const dados = {
+                nome: document.getElementById('editNome').value,
+                descricao: document.getElementById('editDesc').value,
+                preco: parseFloat(document.getElementById('editPreco').value),
+                categoria: document.getElementById('editCategoria').value,
+                quantidade: parseInt(document.getElementById('editQtd').value),
+                unidade: document.getElementById('editUnidade').value
+            };
+            const resp = await fetch('/api/produtos/' + id, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+            const result = await resp.json();
+            if (result.sucesso) {
+                fecharModal();
+                carregarProdutos();
+            } else {
+                alert('Erro ao editar: ' + result.erro);
+            }
+        }
+
+        function fecharModal() {
+            document.getElementById('modalEditar').style.display = 'none';
+        }
+
+        async function excluirProduto(id) {
+            if (!confirm('Tem certeza que deseja excluir este produto?')) return;
+            const resp = await fetch('/api/produtos/' + id, {
+                method: 'DELETE'
+            });
+            const result = await resp.json();
+            if (result.sucesso) {
+                carregarProdutos();
+            }
+        }
+
+        async function mudarStatus(id, status) {
+            const resp = await fetch('/api/pedidos/' + id, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: status })
+            });
+            const result = await resp.json();
+            if (result.sucesso) {
+                carregarPedidos();
+            }
+        }
+
+        function mostrarTab(tab) {
+            document.getElementById('tab-produtos-content').style.display = tab === 'produtos' ? 'block' : 'none';
+            document.getElementById('tab-pedidos-content').style.display = tab === 'pedidos' ? 'block' : 'none';
+            document.getElementById('tab-promocoes-content').style.display = tab === 'promocoes' ? 'block' : 'none';
+            document.getElementById('tab-produtos').className = tab === 'produtos' ? 'active' : '';
+            document.getElementById('tab-pedidos').className = tab === 'pedidos' ? 'active' : '';
+            document.getElementById('tab-promocoes').className = tab === 'promocoes' ? 'active' : '';
+            if (tab === 'pedidos') carregarPedidos();
+            if (tab === 'promocoes') carregarPromocoes();
+        }
+
+        function logout() {
+            localStorage.removeItem('admin');
+            window.location.href = 'admin-login.html';
+        }
+
+        window.onclick = function (event) {
+            if (event.target === document.getElementById('modalEditar')) {
+                fecharModal();
+            }
+            if (event.target === document.getElementById('modalEditarPromocao')) {
+                fecharModalPromocao();
+            }
+        }
+
+        // ===== FUNÇÕES DE PROMOÇÕES =====
+        async function carregarPromocoes() {
+            const resp = await fetch('/api/admin/promocoes');
+            promocoes = await resp.json();
+            exibirPromocoes();
+        }
+
+        function exibirPromocoes() {
+            const tbody = document.getElementById('tabelaPromocoes');
+            tbody.innerHTML = promocoes.map(p => {
+                const statusBadge = p.ativa === 1 ? '<span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: 700;">ATIVA</span>' : '<span style="background: #ffebee; color: #c00; padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: 700;">INATIVA</span>';
+                return `<tr>
+                    <td>${p.id}</td>
+                    <td>${p.nome}</td>
+                    <td>${p.quantidade}x</td>
+                    <td>R$ ${p.preco_combo.toFixed(2).replace('.', ',')}</td>
+                    <td>${p.descricao}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button class="btn-editar" onclick="editarPromocao(${p.id})">✏️ Editar</button>
+                        <button class="btn-excluir" onclick="excluirPromocao(${p.id})">🗑️ Excluir</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        // Preencher select de produtos
+        function preencherSelectProdutos() {
+            const select = document.getElementById('promocaoProduto');
+            select.innerHTML = '<option value="">Selecione um produto...</option>';
+            produtos.forEach(p => {
+                select.innerHTML += `<option value="${p.id}">${p.nome} (R$ ${p.preco.toFixed(2).replace('.', ',')})</option>`;
+            });
+        }
+
+        // Formulário de promoção
+        document.getElementById('formPromocao').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const dados = {
+                produto_id: parseInt(document.getElementById('promocaoProduto').value),
+                quantidade: parseInt(document.getElementById('promocaoQtd').value),
+                preco_combo: parseFloat(document.getElementById('promocaoPreco').value),
+                descricao: document.getElementById('promocaoDesc').value
+            };
+
+            if (!dados.produto_id || !dados.quantidade || !dados.preco_combo) {
+                alert('Preencha os campos obrigatórios');
+                return;
+            }
+
+            const msg = document.getElementById('mensagemPromocao');
+            const resp = await fetch('/api/promocoes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+            const result = await resp.json();
+            if (result.sucesso) {
+                msg.className = 'mensagem sucesso';
+                msg.textContent = '✅ Promoção criada com sucesso!';
+                msg.style.display = 'block';
+                document.getElementById('formPromocao').reset();
+                carregarPromocoes();
+            } else {
+                msg.className = 'mensagem erro';
+                msg.textContent = '❌ ' + result.erro;
+                msg.style.display = 'block';
+            }
+        });
+
+        function editarPromocao(id) {
+            const p = promocoes.find(promo => promo.id === id);
+            document.getElementById('editPromoId').value = p.id;
+            document.getElementById('editPromoQtd').value = p.quantidade;
+            document.getElementById('editPromoPreco').value = p.preco_combo;
+            document.getElementById('editPromoDesc').value = p.descricao;
+            document.getElementById('editPromoAtiva').value = p.ativa;
+            document.getElementById('modalEditarPromocao').style.display = 'flex';
+        }
+
+        function fecharModalPromocao() {
+            document.getElementById('modalEditarPromocao').style.display = 'none';
+        }
+
+        async function salvarEdicaoPromocao() {
+            const id = document.getElementById('editPromoId').value;
+            const dados = {
+                quantidade: parseInt(document.getElementById('editPromoQtd').value),
+                preco_combo: parseFloat(document.getElementById('editPromoPreco').value),
+                descricao: document.getElementById('editPromoDesc').value,
+                ativa: parseInt(document.getElementById('editPromoAtiva').value)
+            };
+            const resp = await fetch('/api/promocoes/' + id, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+            const result = await resp.json();
+            if (result.sucesso) {
+                fecharModalPromocao();
+                carregarPromocoes();
+            } else {
+                alert('Erro ao editar: ' + result.erro);
+            }
+        }
+
+        async function excluirPromocao(id) {
+            if (!confirm('Tem certeza que deseja excluir esta promoção?')) return;
+            const resp = await fetch('/api/promocoes/' + id, {
+                method: 'DELETE'
+            });
+            const result = await resp.json();
+            if (result.sucesso) {
+                carregarPromocoes();
+            }
+        }
+
+        // ===== SISTEMA DE LEITURA DE CÓDIGO DE BARRAS =====
+        let barcodeParcial = '';
+        let tempoUltimaDigitacao = 0;
+
+        const inputLeitura = document.getElementById('leituraBarras');
+        const statusDiv = document.getElementById('statusLeitura');
+
+        // Detector de leitura rápida de código de barras (scanner)
+        inputLeitura.addEventListener('keydown', async (e) => {
+            const agora = Date.now();
+            const diferenca = agora - tempoUltimaDigitacao;
+
+            // Se passou mais de 100ms desde a última digitação, é digitação manual
+            if (diferenca > 100 && barcodeParcial.length > 0) {
+                barcodeParcial = '';
+            }
+
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const codigo = barcodeParcial.trim() || inputLeitura.value.trim();
+
+                if (codigo.length > 0) {
+                    await processarCodigoBarras(codigo);
+                    barcodeParcial = '';
+                    inputLeitura.value = '';
+                }
+                return;
+            }
+
+            barcodeParcial += e.key;
+            tempoUltimaDigitacao = agora;
+
+            // Se atingiu tamanho típico de código de barras (13 dígitos EAN), processa
+            if (barcodeParcial.replace(/\D/g, '').length === 13) {
+                e.preventDefault();
+                const codigo = barcodeParcial.replace(/\D/g, '');
+                await processarCodigoBarras(codigo);
+                barcodeParcial = '';
+                inputLeitura.value = '';
+            }
+        });
+
+        async function processarCodigoBarras(codigo) {
+            try {
+                statusDiv.style.display = 'block';
+                statusDiv.textContent = '🔍 Procurando produto...';
+                statusDiv.style.background = '#fff3cd';
+                statusDiv.style.color = '#856404';
+                statusDiv.style.borderLeftColor = '#856404';
+
+                const resp = await fetch(`/api/produtos/barras/${codigo}`);
+
+                if (!resp.ok) {
+                    statusDiv.textContent = '❌ Código não encontrado. Preencha manualmente.';
+                    statusDiv.style.background = '#f8d7da';
+                    statusDiv.style.color = '#721c24';
+                    statusDiv.style.borderLeftColor = '#721c24';
+                    document.getElementById('produtoBarras').value = codigo;
+                    return;
+                }
+
+                const produto = await resp.json();
+
+                // Preencher formulário com dados do produto
+                document.getElementById('produtoBarras').value = produto.codigo_barras || codigo;
+                document.getElementById('produtoNome').value = produto.nome;
+                document.getElementById('produtoDesc').value = produto.descricao || '';
+                document.getElementById('produtoPreco').value = produto.preco;
+                document.getElementById('produtoCategoria').value = produto.categoria;
+                document.getElementById('produtoQtd').value = produto.quantidade;
+                document.getElementById('produtoUnidade').value = produto.unidade;
+
+                statusDiv.innerHTML = `✅ <strong>${produto.nome}</strong> encontrado!<br>ID: ${produto.id} | Estoque: ${produto.quantidade} ${produto.unidade}`;
+                statusDiv.style.background = '#d4edda';
+                statusDiv.style.color = '#155724';
+                statusDiv.style.borderLeftColor = '#155724';
+
+                // Focar no primeiro campo editável
+                document.getElementById('produtoQtd').focus();
+
+            } catch (erro) {
+                console.error('Erro ao processar código:', erro);
+                statusDiv.textContent = '⚠️ Erro ao consultar produto.';
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.color = '#721c24';
+                statusDiv.style.borderLeftColor = '#721c24';
+            }
+        }
+
+        function limparLeitura() {
+            inputLeitura.value = '';
+            statusDiv.style.display = 'none';
+            barcodeParcial = '';
+            inputLeitura.focus();
+        }
+
+        // Atualizar evento de envio do formulário para incluir codigo_barras
+        document.getElementById('formProduto').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const dados = {
+                nome: document.getElementById('produtoNome').value,
+                descricao: document.getElementById('produtoDesc').value,
+                preco: parseFloat(document.getElementById('produtoPreco').value),
+                categoria: document.getElementById('produtoCategoria').value,
+                quantidade: parseInt(document.getElementById('produtoQtd').value),
+                unidade: document.getElementById('produtoUnidade').value,
+                codigo_barras: document.getElementById('produtoBarras').value || null
+            };
+            const msg = document.getElementById('mensagemProduto');
+            const resp = await fetch('/api/produtos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+            const result = await resp.json();
+            if (result.sucesso) {
+                msg.className = 'mensagem sucesso';
+                msg.textContent = '✅ Produto cadastrado com sucesso!';
+                msg.style.display = 'block';
+                document.getElementById('formProduto').reset();
+                limparLeitura();
+                carregarProdutos();
+            } else {
+                msg.className = 'mensagem erro';
+                msg.textContent = '❌ ' + result.erro;
+                msg.style.display = 'block';
+            }
+        });
+
+        carregarProdutos();
+        carregarPedidos();
+        carregarPromocoes();
+
+        // Atualizar select de produtos quando carregar
+        setTimeout(() => {
+            preencherSelectProdutos();
+        }, 500);
+
+        // Auto-foco no campo de leitura de código de barras
+        setTimeout(() => {
+            inputLeitura.focus();
+        }, 500);
+    </script>
+</body>
+
+</html>

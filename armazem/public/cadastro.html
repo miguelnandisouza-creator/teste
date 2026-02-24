@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Armazém Parada Obrigatória</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Montserrat:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?libraries=places&callback=initMapCallback"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f8f8;
+            color: #333;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+            border-bottom: 8px solid #FFA500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(255, 165, 0, 0.05) 10px,
+                    rgba(255, 165, 0, 0.05) 20px);
+            pointer-events: none;
+        }
+
+        header>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            color: #FFA500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .nav {
+            background: #1a1a1a;
+            padding: 0;
+            text-align: center;
+            border-bottom: 4px solid #FFA500;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 18px 25px;
+            display: inline-block;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .nav a:hover {
+            color: #FFA500;
+            background: rgba(255, 165, 0, 0.1);
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 35px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #FFA500;
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 30px;
+            color: #1a1a1a;
+            font-size: 1.8em;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 3px solid #FFA500;
+            padding-bottom: 15px;
+        }
+
+        h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+            font-size: 1.3em;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: #333;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #FFA500;
+            box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.1);
+        }
+
+        input::placeholder {
+            color: #999;
+        }
+
+        small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+            font-size: 0.85em;
+        }
+
+        .endereco-container {
+            background: linear-gradient(135deg, #FFF9F0 0%, #FFF5E6 100%);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 6px solid #FFA500;
+        }
+
+        .mapa-container {
+            width: 100%;
+            height: 350px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 3px solid #FFA500;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 165, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        #btnBuscarCep {
+            margin-top: 10px;
+            margin-bottom: 0;
+        }
+
+        .mensagem {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+            display: none;
+            font-weight: 600;
+            border-left: 6px solid;
+        }
+
+        .mensagem.erro {
+            background: #ffebee;
+            color: #c00;
+            border-left-color: #c00;
+        }
+
+        .mensagem.sucesso {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left-color: #2e7d32;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .container {
+                margin: 15px;
+                padding: 20px;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            h2 {
+                font-size: 1.4em;
+            }
+
+            .mapa-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>🛒 Armazém Parada Obrigatória</h1>
+    </header>
+
+    <nav class="nav">
+        <a href="index.html">Início</a>
+        <a href="login.html">Login</a>
+    </nav>
+
+    <div class="container">
+        <h2>📝 Cadastro</h2>
+        <form id="formCadastro">
+            <div class="form-group">
+                <label for="nome">Nome Completo *</label>
+                <input type="text" id="nome" placeholder="Digite seu nome completo" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" placeholder="seu@email.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="telefone">Telefone</label>
+                <input type="tel" id="telefone" placeholder="(51) 99999-9999">
+            </div>
+
+            <div class="form-group">
+                <label for="senha">Senha *</label>
+                <input type="password" id="senha" placeholder="••••••••" required>
+            </div>
+
+            <div class="endereco-container">
+                <h3>📍 Endereço de Entrega</h3>
+
+                <div class="form-group">
+                    <label for="endereco">Endereço *</label>
+                    <input type="text" id="endereco" placeholder="Comece a digitar o endereço..." required>
+                    <small>👇 Selecione seu endereço na lista</small>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="numero">Número *</label>
+                        <input type="text" id="numero" placeholder="Ex: 123" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bairro">Bairro *</label>
+                        <input type="text" id="bairro" placeholder="Ex: Centro" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cidade">Cidade *</label>
+                    <input type="text" id="cidade" placeholder="Ex: Porto Alegre" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="cep">CEP</label>
+                    <input type="text" id="cep" placeholder="Ex: 90000-000">
+                    <button type="button" id="btnBuscarCep" onclick="buscarCepViaCEP()" title="Buscar via ViaCEP">
+                        🔍 Buscar CEP
+                    </button>
+                </div>
+
+                <label style="margin-top: 15px; margin-bottom: 10px;">📌 Confirme seu local no mapa:</label>
+                <div class="mapa-container">
+                    <div id="map"></div>
+                </div>
+            </div>
+
+            <button type="submit">✅ Criar Minha Conta</button>
+        </form>
+
+        <div id="mensagem" class="mensagem"></div>
+    </div>
+
+    <script>
+        let autocomplete;
+        let map;
+        let marker;
+        let latitude = 0;
+        let longitude = 0;
+
+        // Inicializar Google Maps
+        function initMap() {
+            try {
+                if (!document.getElementById('map')) return;
+
+                const defaultLocation = { lat: -30.0277, lng: -51.5005 }; // Porto Alegre
+
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 15,
+                    center: defaultLocation,
+                    disableDefaultUI: false
+                });
+
+                marker = new google.maps.Marker({
+                    map: map,
+                    position: defaultLocation,
+                    draggable: true
+                });
+
+                // Quando arrastar o marcador, atualizar coordenadas
+                marker.addListener('dragend', () => {
+                    latitude = marker.getPosition().lat();
+                    longitude = marker.getPosition().lng();
+                });
+
+                console.log('Google Maps inicializado com sucesso');
+
+                // Clique no mapa para adicionar marcador
+                map.addListener('click', (e) => {
+                    marker.setPosition(e.latLng);
+                    latitude = e.latLng.lat();
+                    longitude = e.latLng.lng();
+                });
+            } catch (e) {
+                console.error('Erro ao inicializar Google Maps:', e);
+                // Usar ViaCEP como fallback
+                document.getElementById('map').innerHTML = '<p style="padding: 20px; color: #666;">Busca de CEP via ViaCEP ativa</p>';
+                latitude = -30.0277;
+                longitude = -51.5005;
+            }
+        }
+
+        // Inicializar Google Places Autocomplete
+        function initAutocomplete() {
+            try {
+                const input = document.getElementById('endereco');
+
+                autocomplete = new google.maps.places.Autocomplete(input, {
+                    types: ['address'],
+                    componentRestrictions: { country: 'br' }
+                });
+
+                console.log('Google Places Autocomplete inicializado');
+            } catch (e) {
+                console.warn('Google Places Autocomplete não disponível:', e);
+            }
+
+            if (autocomplete) {
+                autocomplete.addListener('place_changed', async () => {
+                    try {
+                        const place = autocomplete.getPlace();
+
+                        if (!place.geometry) {
+                            console.log('Nenhum local selecionado');
+                            return;
+                        }
+
+                        // Atualizar mapa
+                        if (map && marker) {
+                            map.panTo(place.geometry.location);
+                            marker.setPosition(place.geometry.location);
+                        }
+                        latitude = place.geometry.location.lat();
+                        longitude = place.geometry.location.lng();
+
+                        // Extrair componentes do endereço
+                        const components = place.address_components;
+                        let rua = '';
+                        let numero = '';
+                        let bairro = '';
+                        let cidade = '';
+                        let cep = '';
+
+                        components.forEach(component => {
+                            const types = component.types;
+                            if (types.includes('route')) rua = component.long_name;
+                            if (types.includes('street_number')) numero = component.long_name;
+                            if (types.includes('sublocality')) bairro = component.long_name;
+                            if (types.includes('administrative_area_level_2')) cidade = component.long_name;
+
+                            // Tentar diferentes formas de encontrar o CEP
+                            if (types.includes('postal_code')) {
+                                cep = component.long_name;
+                            } else if (types.includes('postal_code_prefix')) {
+                                cep = component.long_name;
+                            }
+                        });
+
+                        // Preencher campos básicos primeiro
+                        document.getElementById('endereco').value = rua;
+                        document.getElementById('numero').value = numero;
+                        document.getElementById('bairro').value = bairro;
+                        document.getElementById('cidade').value = cidade;
+
+                        console.log('Componentes extraídos:', { rua, numero, bairro, cidade, cep });
+
+                        // Se não encontrou o CEP, tentar obtê-lo via APIs
+                        if (!cep && place.geometry && place.geometry.location) {
+                            try {
+                                // Primeiro tentar com Reverse Geocoding do Google
+                                const geoResponse = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${place.geometry.location.lat()},${place.geometry.location.lng()}&key=AIzaSyDNM1TrNhNjWy86F2x6M5bvZAhZCkqGwhA&language=pt-BR`);
+                                const geoData = await geoResponse.json();
+
+                                console.log('Resposta Geocoding Reverse:', geoData);
+
+                                if (geoData.results && geoData.results.length > 0) {
+                                    geoData.results[0].address_components.forEach(component => {
+                                        if (component.types.includes('postal_code')) {
+                                            cep = component.long_name;
+                                            console.log('CEP encontrado via Reverse Geocoding:', cep);
+                                        }
+                                    });
+                                }
+
+                                // Se ainda não tem CEP, tentar ViaCEP
+                                if (!cep && cidade && rua && numero) {
+                                    try {
+                                        const viacepUrl = `https://viacep.com.br/ws/${cidade}/${rua}/${numero}/json`;
+                                        console.log('Buscando CEP via ViaCEP:', viacepUrl);
+
+                                        const viacepResponse = await fetch(viacepUrl);
+                                        const viacepData = await viacepResponse.json();
+
+                                        console.log('Resposta ViaCEP:', viacepData);
+
+                                        if (viacepData && Array.isArray(viacepData) && viacepData.length > 0) {
+                                            cep = viacepData[0].cep;
+                                            console.log('CEP encontrado via ViaCEP:', cep);
+                                        }
+                                    } catch (err) {
+                                        console.log('Erro ao obter CEP via ViaCEP:', err);
+                                    }
+                                }
+                            } catch (err) {
+                                console.log('Erro ao obter CEP:', err);
+                            }
+                        }
+
+                        // Preencher CEP após todas as tentativas
+                        console.log('CEP final:', cep);
+                        document.getElementById('cep').value = cep || '';
+                    } catch (e) {
+                        console.error('Erro ao processar lugar selecionado:', e);
+                    }
+                });
+            }
+        }
+
+        // Buscar CEP manualmente via ViaCEP (através do servidor)
+        async function buscarCepViaCEP() {
+            const cep = document.getElementById('cep').value.trim();
+            const endereco = document.getElementById('endereco').value.trim();
+            const numero = document.getElementById('numero').value.trim();
+            const cidade = document.getElementById('cidade').value.trim();
+
+            // Modo 1: Se você digitou um CEP, busca pelo CEP
+            if (cep) {
+                try {
+                    console.log('Buscando endereço para CEP:', cep);
+
+                    const response = await fetch(`/api/buscar-cep?cep=${encodeURIComponent(cep)}`);
+                    const data = await response.json();
+
+                    console.log('Resposta do servidor:', data);
+
+                    if (data && (data.cep || data.logradouro)) {
+                        document.getElementById('endereco').value = data.logradouro || data.street || '';
+                        document.getElementById('bairro').value = data.bairro || data.neighborhood || '';
+                        document.getElementById('cidade').value = data.localidade || data.city || '';
+
+                        console.log('Endereço encontrado:', data);
+
+                        // Agora buscar as coordenadas deste endereço
+                        const enderecoCompleto = (data.logradouro || '') + ', ' + numero + ', ' + (data.localidade || '');
+                        try {
+                            const geocodeUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(enderecoCompleto)}&format=json&limit=1`;
+                            console.log('Buscando coordenadas:', geocodeUrl);
+
+                            const geocodeResponse = await fetch(geocodeUrl);
+                            const geocodeData = await geocodeResponse.json();
+
+                            if (geocodeData && geocodeData.length > 0) {
+                                latitude = parseFloat(geocodeData[0].lat);
+                                longitude = parseFloat(geocodeData[0].lon);
+
+                                console.log('Coordenadas encontradas:', latitude, longitude);
+
+                                // Atualizar mapa se estiver disponível
+                                if (typeof google !== 'undefined' && google.maps && map && marker) {
+                                    const newLocation = { lat: latitude, lng: longitude };
+                                    map.panTo(newLocation);
+                                    marker.setPosition(newLocation);
+                                }
+                            }
+                        } catch (geoErr) {
+                            console.log('Geocoding não disponível, usando coordenadas genéricas');
+                            latitude = -30.0277; // Porto Alegre padrão
+                            longitude = -51.5005;
+                        }
+
+                        alert('✅ Endereço encontrado!\n' + (data.logradouro || '') + '\n' + (data.bairro || '') + '\n' + (data.localidade || ''));
+                    } else if (data.erro) {
+                        alert('❌ ' + data.erro);
+                    } else {
+                        alert('❌ CEP não encontrado');
+                        console.log('Resposta completa:', data);
+                    }
+                } catch (err) {
+                    console.error('Erro ao buscar CEP:', err);
+                    alert('❌ Erro ao buscar CEP: ' + err.message);
+                }
+            }
+            // Modo 2: Se você tem rua + número, busca pelo endereço
+            else if (endereco && numero && cidade) {
+                try {
+                    console.log('Buscando CEP para:', { cidade, endereco, numero });
+
+                    const response = await fetch(`/api/buscar-cep?cidade=${encodeURIComponent(cidade)}&rua=${encodeURIComponent(endereco)}&numero=${encodeURIComponent(numero)}`);
+                    const data = await response.json();
+
+                    console.log('Resposta do servidor:', data);
+
+                    if (data && Array.isArray(data) && data.length > 0) {
+                        const resultado = data[0];
+                        document.getElementById('cep').value = resultado.cep;
+                        document.getElementById('bairro').value = resultado.bairro || '';
+
+                        console.log('CEP encontrado:', resultado);
+                        alert('✅ CEP encontrado: ' + resultado.cep);
+                    } else {
+                        alert('❌ CEP não encontrado para esse endereço');
+                    }
+                } catch (err) {
+                    console.error('Erro ao buscar CEP:', err);
+                    alert('❌ Erro ao buscar CEP. Tente digitar manualmente.');
+                }
+            }
+            // Modo 3: Se não preencheu nada
+            else {
+                alert('💡 Digite um CEP OU preencha Rua + Número + Cidade');
+            }
+        }
+
+        // Formulário de cadastro
+        document.getElementById('formCadastro').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const dados = {
+                nome: document.getElementById('nome').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                telefone: document.getElementById('telefone').value.trim(),
+                endereco: document.getElementById('endereco').value.trim(),
+                numero: document.getElementById('numero').value.trim(),
+                bairro: document.getElementById('bairro').value.trim(),
+                cidade: document.getElementById('cidade').value.trim(),
+                cep: document.getElementById('cep').value.trim(),
+                latitude: latitude,
+                longitude: longitude,
+                senha: document.getElementById('senha').value.trim()
+            };
+
+            // Debug: mostrar valores
+            console.log('Dados do formulário:', dados);
+            console.log('Latitude:', latitude, 'Longitude:', longitude);
+
+            // Validações
+            if (!dados.endereco || !dados.numero || !dados.bairro || !dados.cidade) {
+                const msg = document.getElementById('mensagem');
+                msg.className = 'mensagem erro';
+                msg.textContent = '❌ Preencha todos os campos de endereço! (Rua, Número, Bairro, Cidade)';
+                msg.style.display = 'block';
+                console.log('Validação falhou:', {
+                    endereco: !!dados.endereco,
+                    numero: !!dados.numero,
+                    bairro: !!dados.bairro,
+                    cidade: !!dados.cidade
+                });
+                return;
+            }
+
+            if (!latitude || !longitude) {
+                const msg = document.getElementById('mensagem');
+                msg.className = 'mensagem erro';
+                msg.textContent = '❌ Selecione um endereço válido no mapa!';
+                msg.style.display = 'block';
+                return;
+            }
+
+            const msg = document.getElementById('mensagem');
+
+            try {
+                const resp = await fetch('/api/clientes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+
+                const result = await resp.json();
+
+                if (result.sucesso) {
+                    msg.className = 'mensagem sucesso';
+                    msg.innerHTML = '✅ Cadastro realizado! Redirecionando...';
+                    msg.style.display = 'block';
+
+                    // Salvar dados do cliente
+                    localStorage.setItem('cliente', JSON.stringify({
+                        id: result.id,
+                        nome: result.nome,
+                        email: result.email
+                    }));
+
+                    setTimeout(() => window.location.href = 'login.html', 1500);
+                } else {
+                    msg.className = 'mensagem erro';
+                    msg.textContent = '❌ ' + result.erro;
+                    msg.style.display = 'block';
+                }
+            } catch (err) {
+                msg.className = 'mensagem erro';
+                msg.textContent = '❌ Erro ao cadastrar. Tente novamente.';
+                msg.style.display = 'block';
+            }
+        });
+
+        // Inicializar ao carregar página
+        function initMapCallback() {
+            console.log('Google Maps carregado com callback');
+            try {
+                initMap();
+                initAutocomplete();
+            } catch (e) {
+                console.error('Erro ao inicializar Maps:', e);
+            }
+        }
+
+        // Fallback se o callback não funcionar
+        window.addEventListener('load', () => {
+            if (typeof google !== 'undefined' && google.maps) {
+                console.log('Google Maps já carregado');
+                if (!map) {
+                    initMap();
+                    initAutocomplete();
+                }
+            } else {
+                console.error('Google Maps ainda não carregou');
+            }
+        });
+    </script>
+</body>
+
+</html>

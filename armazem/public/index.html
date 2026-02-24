@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Armazém Parada Obrigatória</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Montserrat:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f8f8;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 8px solid #FFA500;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 10px,
+                    rgba(255, 165, 0, 0.05) 10px, rgba(255, 165, 0, 0.05) 20px);
+            pointer-events: none;
+        }
+
+        header>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        header h1 {
+            font-size: 3em;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            color: #FFA500;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            font-weight: 400;
+            color: #e0e0e0;
+            letter-spacing: 0.5px;
+        }
+
+        .nav {
+            background: #1a1a1a;
+            padding: 0;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 4px solid #FFA500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-left {
+            display: flex;
+            flex: 1;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 18px 25px;
+            display: inline-block;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.95em;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 3px solid transparent;
+            flex: 1;
+        }
+
+        .nav a:hover {
+            color: #FFA500;
+            background: rgba(255, 165, 0, 0.1);
+        }
+
+        .carrinho-btn {
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            border-radius: 6px;
+            margin: 12px 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .carrinho-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 165, 0, 0.3);
+        }
+
+        .badge-carrinho {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #c00;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9em;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 35px 20px;
+        }
+
+        .secao-promocoes {
+            margin-bottom: 50px;
+        }
+
+        .secao-titulo {
+            font-size: 1.8em;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 3px solid #FFA500;
+            padding-bottom: 12px;
+        }
+
+        .promocoes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .promo-card {
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFFACD 100%);
+            border: 3px solid #FFA500;
+            border-radius: 12px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 165, 0, 0.1);
+        }
+
+        .promo-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(255, 165, 0, 0.3);
+        }
+
+        .promo-header {
+            font-size: 1.3em;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .promo-descricao {
+            color: #666;
+            font-size: 0.95em;
+            margin: 8px 0;
+        }
+
+        .promo-economia {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            margin: 12px 0;
+            font-size: 0.9em;
+        }
+
+        .promo-preco {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 2px solid rgba(255, 165, 0, 0.2);
+        }
+
+        .promo-valor {
+            font-size: 1.8em;
+            font-weight: 800;
+            color: #FFA500;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .btn-adicionar {
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-adicionar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 165, 0, 0.3);
+        }
+
+        .categorias {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 40px;
+            border-left: 6px solid #FFA500;
+        }
+
+        .categorias-title {
+            font-size: 1.4em;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .categorias {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .categorias button {
+            padding: 12px 18px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
+        }
+
+        .categorias button:hover {
+            border-color: #FFA500;
+            color: #FFA500;
+        }
+
+        .categorias button.ativa {
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            color: white;
+            border-color: #FFA500;
+        }
+
+        .produtos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 28px;
+            margin-bottom: 50px;
+        }
+
+        .produto {
+            background: white;
+            padding: 22px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.35s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+
+        .produto::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: repeating-linear-gradient(90deg, #FFA500, #FFA500 6px, #1a1a1a 6px, #1a1a1a 12px);
+        }
+
+        .produto:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(255, 165, 0, 0.2);
+            border-color: #FFA500;
+        }
+
+        .produto-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+            gap: 10px;
+        }
+
+        .produto h3 {
+            font-size: 1.15em;
+            color: #1a1a1a;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            flex: 1;
+        }
+
+        .produto .categoria {
+            font-size: 0.7em;
+            color: white;
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            padding: 5px 11px;
+            border-radius: 6px;
+            font-weight: 700;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .produto p {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 14px;
+            line-height: 1.5;
+            min-height: 45px;
+        }
+
+        .produto-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-top: 2px solid #f0f0f0;
+            padding-top: 14px;
+        }
+
+        .produto .preco {
+            font-size: 1.8em;
+            color: #FFA500;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .produto .estoque {
+            color: #666;
+            font-size: 0.85em;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .estoque-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            font-size: 0.75em;
+        }
+
+        .modal-carrinho {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: flex-end;
+        }
+
+        .modal-cargo {
+            background: white;
+            width: 100%;
+            max-width: 450px;
+            height: 100%;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            padding: 20px;
+            border-bottom: 4px solid #FFA500;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .modal-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 2px solid #eee;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .item-carrinho {
+            background: #f5f5f5;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #FFA500;
+        }
+
+        .item-carrinho-info {
+            flex: 1;
+        }
+
+        .item-carrinho-nome {
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .item-carrinho-qtd {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .item-carrinho-preco {
+            font-weight: 700;
+            color: #FFA500;
+            font-size: 1.1em;
+        }
+
+        .btn-remover-item {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        .total-carrinho {
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 1.3em;
+            font-weight: 800;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .btn-finalizar {
+            background: linear-gradient(135deg, #2e7d32 0%, #1565c0 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .btn-finalizar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 125, 50, 0.3);
+        }
+
+        .btn-limpar {
+            background: #ddd;
+            color: #333;
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .btn-limpar:hover {
+            background: #999;
+            color: white;
+        }
+
+        .carrinho-vazio {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        footer {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+            color: white;
+            text-align: center;
+            padding: 45px 20px;
+            margin-top: 60px;
+            border-top: 6px solid #FFA500;
+        }
+
+        footer p {
+            margin: 10px 0;
+            font-size: 0.95em;
+            opacity: 0.85;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .modal-cargo {
+                max-width: 100%;
+            }
+
+            .nav {
+                flex-wrap: wrap;
+            }
+
+            .nav-left {
+                width: 100%;
+            }
+
+            .nav a {
+                flex: 0;
+                padding: 12px 15px;
+                font-size: 0.8em;
+            }
+
+            .carrinho-btn {
+                margin: 8px;
+                width: calc(100% - 16px);
+            }
+
+            .produtos {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 16px;
+            }
+
+            .produto {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>🛒 Armazém Parada Obrigatória</h1>
+        <p>✨ Qualidade e preço baixo você encontra aqui! ✨</p>
+    </header>
+
+    <nav class="nav">
+        <div class="nav-left">
+            <a href="index.html">🏠 Início</a>
+            <a href="login.html">👤 Login</a>
+            <a href="cadastro.html">📝 Cadastre-se</a>
+            <a href="admin-login.html">⚙️ Área Admin</a>
+        </div>
+        <button class="carrinho-btn" onclick="abrirCarrinho()">
+            🛒 Carrinho
+            <span class="badge-carrinho" id="badge-carrinho" style="display: none;">0</span>
+        </button>
+    </nav>
+
+    <div class="container">
+        <div class="secao-promocoes">
+            <div class="secao-titulo">🏷️ Promoções</div>
+            <div class="promocoes-grid" id="promocoes">
+                <p style="text-align: center; color: #999;">Carregando promoções...</p>
+            </div>
+        </div>
+
+        <div class="categorias" id="catDiv">
+            <div class="categorias-title">🏪 Categorias</div>
+            <button onclick="filtrar('')" class="ativa" id="btn-todos">Todos</button>
+            <button onclick="filtrar('açougue')" id="btn-acougue">🥩 Açougue</button>
+            <button onclick="filtrar('hortifruti')" id="btn-hortifruti">🥬 Hortifruti</button>
+            <button onclick="filtrar('padaria')" id="btn-padaria">🍞 Padaria</button>
+            <button onclick="filtrar('bebidas')" id="btn-bebidas">🥤 Bebidas</button>
+            <button onclick="filtrar('mercearia')" id="btn-mercearia">🛍️ Mercearia</button>
+            <button onclick="filtrar('laticínios')" id="btn-laticinios">🧈 Laticínios</button>
+            <button onclick="filtrar('limpeza')" id="btn-limpeza">🧹 Limpeza</button>
+        </div>
+
+        <div class="secao-titulo">📦 Produtos</div>
+        <div class="produtos" id="produtos"></div>
+    </div>
+
+    <div class="modal-carrinho" id="modalCarrinho" onclick="fecharCarrinho(event)">
+        <div class="modal-cargo" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>🛒 Seu Carrinho</h2>
+            </div>
+            <div class="modal-body" id="listaCarrinho">
+                <div class="carrinho-vazio">Carrinho vazio</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-finalizar" onclick="irParaPedido()">✅ Ir para Pedido</button>
+                <button class="btn-limpar" onclick="limparCarrinho()">🗑️ Limpar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>📍 Avenida Principal, 100 - Centro | 📞 Tel: (51) 99999-9999</p>
+        <p>&copy; 2024 Armazém Parada Obrigatória - Todos os direitos reservados ®</p>
+    </footer>
+
+    <script>
+        let todosProdutos = [];
+        let promocoes = [];
+        let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+
+        async function carregarDados() {
+            const [resProdutos, resPromocoes] = await Promise.all([
+                fetch('/api/produtos'),
+                fetch('/api/promocoes')
+            ]);
+            todosProdutos = await resProdutos.json();
+            promocoes = await resPromocoes.json();
+            exibirPromocoes();
+            exibirProdutos(todosProdutos);
+            atualizarBadgeCarrinho();
+        }
+
+        function exibirPromocoes() {
+            const div = document.getElementById('promocoes');
+            if (!promocoes.length) {
+                div.innerHTML = '<p style="text-align: center; color: #999; grid-column: 1/-1;">Nenhuma promoção no momento</p>';
+                return;
+            }
+            div.innerHTML = promocoes.map(p => {
+                const prod = todosProdutos.find(x => x.id === p.produto_id);
+                if (!prod) return '';
+                const precoUnit = prod.preco * p.quantidade;
+                const economia = precoUnit - p.preco_combo;
+                return `<div class="promo-card" onclick="adicionarPromoCarrinho(${p.produto_id}, ${p.quantidade}, '${prod.nome}', ${p.preco_combo}, '${p.descricao}')">
+                    <div class="promo-header">${prod.nome}</div>
+                    <div class="promo-descricao"><strong>${p.descricao}</strong></div>
+                    <div class="promo-economia">💰 Economize R$ ${economia.toFixed(2).replace('.', ',')}</div>
+                    <div class="promo-preco">
+                        <div class="promo-valor">R$ ${p.preco_combo.toFixed(2).replace('.', ',')}</div>
+                        <button class="btn-adicionar" onclick="event.stopPropagation()">➕ Adicionar</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function exibirProdutos(produtos) {
+            const div = document.getElementById('produtos');
+            if (produtos.length === 0) {
+                div.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: #999;"><p style="font-size: 1.3em;">🔍 Nenhum produto encontrado</p></div>';
+                return;
+            }
+            div.innerHTML = produtos.map(p => `
+                <div class="produto" onclick="adicionarProdutoCarrinho(${p.id}, '${p.nome}', ${p.preco})">
+                    <div class="produto-header">
+                        <h3>${p.nome}</h3>
+                        <span class="categoria">${p.categoria}</span>
+                    </div>
+                    <p>${p.descricao || 'Produto de qualidade'}</p>
+                    <div class="produto-info">
+                        <div class="preco">R$ ${p.preco.toFixed(2).replace('.', ',')}</div>
+                        <div class="estoque">
+                            <span class="estoque-badge">📦 ${p.quantidade} ${p.unidade}</span>
+                            <button class="btn-adicionar" onclick="event.stopPropagation(); adicionarProdutoCarrinho(${p.id}, '${p.nome}', ${p.preco})">➕ Adicionar</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filtrar(categoria) {
+            document.querySelectorAll('.categorias button').forEach(b => b.classList.remove('ativa'));
+            if (categoria === '') {
+                document.getElementById('btn-todos').classList.add('ativa');
+                exibirProdutos(todosProdutos);
+            } else {
+                document.querySelector(`button[onclick="filtrar('${categoria}')"]`).classList.add('ativa');
+                exibirProdutos(todosProdutos.filter(p => p.categoria === categoria));
+            }
+        }
+
+        function adicionarProdutoCarrinho(id, nome, preco) {
+            const existe = carrinho.find(i => i.produto_id === id && !i.promocao);
+            if (existe) {
+                existe.quantidade += 1;
+            } else {
+                carrinho.push({ produto_id: id, nome, preco, quantidade: 1, promocao: false });
+            }
+            salvarCarrinho();
+            atualizarBadgeCarrinho();
+        }
+
+        function adicionarPromoCarrinho(id, qty, nome, precoCombo, descricao) {
+            const existe = carrinho.find(i => i.produto_id === id && i.promocao);
+            if (existe) {
+                existe.quantidade += qty;
+            } else {
+                carrinho.push({ produto_id: id, nome, preco: precoCombo / qty, quantidade: qty, promocao: true, precoCombo, descricao });
+            }
+            salvarCarrinho();
+            atualizarBadgeCarrinho();
+        }
+
+        function atualizarBadgeCarrinho() {
+            const total = carrinho.reduce((sum, i) => sum + i.quantidade, 0);
+            const badge = document.getElementById('badge-carrinho');
+            if (total > 0) {
+                badge.textContent = total;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function abrirCarrinho() {
+            atualizarListaCarrinho();
+            document.getElementById('modalCarrinho').style.display = 'flex';
+        }
+
+        function fecharCarrinho(event) {
+            if (event.target.id === 'modalCarrinho') {
+                document.getElementById('modalCarrinho').style.display = 'none';
+            }
+        }
+
+        function atualizarListaCarrinho() {
+            const div = document.getElementById('listaCarrinho');
+            if (!carrinho.length) {
+                div.innerHTML = '<div class="carrinho-vazio">Carrinho vazio</div>';
+                return;
+            }
+            let total = 0;
+            div.innerHTML = carrinho.map((item, idx) => {
+                const subtotal = item.preco * item.quantidade;
+                total += subtotal;
+                return `<div class="item-carrinho">
+                    <div class="item-carrinho-info">
+                        <div class="item-carrinho-nome">${item.nome}</div>
+                        <div class="item-carrinho-qtd">${item.quantidade}x @ R$ ${item.preco.toFixed(2).replace('.', ',')}</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div class="item-carrinho-preco">R$ ${subtotal.toFixed(2).replace('.', ',')}</div>
+                        <button class="btn-remover-item" onclick="removerCarrinho(${idx})">✕</button>
+                    </div>
+                </div>`;
+            }).join('');
+            div.innerHTML += `<div class="total-carrinho">Total: R$ ${total.toFixed(2).replace('.', ',')}</div>`;
+        }
+
+        function removerCarrinho(idx) {
+            carrinho.splice(idx, 1);
+            salvarCarrinho();
+            atualizarBadgeCarrinho();
+            atualizarListaCarrinho();
+        }
+
+        function limparCarrinho() {
+            if (confirm('Limpar carrinho?')) {
+                carrinho = [];
+                salvarCarrinho();
+                atualizarBadgeCarrinho();
+                atualizarListaCarrinho();
+            }
+        }
+
+        function salvarCarrinho() {
+            localStorage.setItem('carrinho', JSON.stringify(carrinho));
+        }
+
+        function irParaPedido() {
+            if (!carrinho.length) {
+                alert('Carrinho vazio!');
+                return;
+            }
+            const cliente = localStorage.getItem('cliente');
+            if (!cliente) {
+                alert('Você precisa fazer login primeiro!');
+                window.location.href = 'login.html';
+                return;
+            }
+            window.location.href = 'pedido.html';
+        }
+
+        carregarDados();
+    </script>
+</body>
+
+</html>
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+
+body {
+font-family: 'Poppins', sans-serif;
+background: #f8f8f8;
+min-height: 100vh;
+color: #333;
+}
+
+/* Header com striped border estilo logo */
+header {
+background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+color: white;
+padding: 50px 20px;
+text-align: center;
+position: relative;
+overflow: hidden;
+border-bottom: 8px solid #FFA500;
+box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+header::before {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: repeating-linear-gradient(45deg,
+transparent,
+transparent 10px,
+rgba(255, 165, 0, 0.05) 10px,
+rgba(255, 165, 0, 0.05) 20px);
+pointer-events: none;
+}
+
+header>* {
+position: relative;
+z-index: 1;
+}
+
+header h1 {
+font-size: 3em;
+font-weight: 800;
+font-family: 'Montserrat', sans-serif;
+letter-spacing: 2px;
+margin-bottom: 15px;
+text-transform: uppercase;
+color: #FFA500;
+text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+header p {
+font-size: 1.2em;
+opacity: 0.9;
+font-weight: 400;
+color: #e0e0e0;
+letter-spacing: 0.5px;
+}
+
+/* Navigation moderna */
+.nav {
+background: #1a1a1a;
+padding: 0;
+text-align: center;
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+position: sticky;
+top: 0;
+z-index: 100;
+border-bottom: 4px solid #FFA500;
+}
+
+.nav a {
+color: white;
+text-decoration: none;
+margin: 0;
+padding: 18px 25px;
+display: inline-block;
+transition: all 0.3s ease;
+font-weight: 600;
+font-size: 0.95em;
+position: relative;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+border-bottom: 3px solid transparent;
+}
+
+.nav a::before {
+content: '';
+position: absolute;
+bottom: 0;
+left: 0;
+width: 0;
+height: 3px;
+background: #FFA500;
+transition: width 0.3s ease;
+}
+
+.nav a:hover {
+color: #FFA500;
+background: rgba(255, 165, 0, 0.1);
+}
+
+.nav a:hover::before {
+width: 100%;
+}
+
+.container {
+max-width: 1200px;
+margin: 0 auto;
+padding: 40px 20px;
+}
+
+.categorias {
+background: white;
+padding: 35px;
+margin-bottom: 40px;
+border-radius: 10px;
+box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+display: flex;
+flex-wrap: wrap;
+gap: 12px;
+justify-content: center;
+align-items: center;
+border-left: 6px solid #FFA500;
+position: relative;
+}
+
+.categorias::after {
+content: '';
+position: absolute;
+top: 0;
+right: 0;
+width: 100%;
+height: 2px;
+background: repeating-linear-gradient(90deg,
+#FFA500,
+#FFA500 10px,
+transparent 10px,
+transparent 20px);
+}
+
+.categorias-title {
+width: 100%;
+text-align: center;
+font-size: 1.5em;
+font-weight: 800;
+color: #1a1a1a;
+margin-bottom: 20px;
+font-family: 'Montserrat', sans-serif;
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+
+.categorias button {
+padding: 12px 22px;
+cursor: pointer;
+border: 2px solid #1a1a1a;
+background: white;
+border-radius: 8px;
+font-weight: 700;
+transition: all 0.3s ease;
+color: #1a1a1a;
+font-size: 0.9em;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+.categorias button:hover {
+background: #1a1a1a;
+color: white;
+transform: translateY(-3px);
+box-shadow: 0 6px 20px rgba(26, 26, 26, 0.2);
+}
+
+.categorias button.ativa {
+background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+color: white;
+border-color: #FFA500;
+box-shadow: 0 8px 25px rgba(255, 165, 0, 0.35);
+}
+
+.produtos {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+gap: 28px;
+margin-bottom: 50px;
+}
+
+.produto {
+background: white;
+padding: 22px;
+border-radius: 10px;
+box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+cursor: pointer;
+position: relative;
+overflow: hidden;
+border: 2px solid transparent;
+}
+
+.produto::before {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 6px;
+background: repeating-linear-gradient(90deg,
+#FFA500,
+#FFA500 6px,
+#1a1a1a 6px,
+#1a1a1a 12px);
+}
+
+.produto:hover {
+transform: translateY(-10px) scale(1.02);
+box-shadow: 0 15px 40px rgba(255, 165, 0, 0.2);
+border-color: #FFA500;
+}
+
+.produto-header {
+display: flex;
+justify-content: space-between;
+align-items: start;
+margin-bottom: 12px;
+gap: 10px;
+}
+
+.produto h3 {
+font-size: 1.15em;
+color: #1a1a1a;
+font-weight: 800;
+font-family: 'Montserrat', sans-serif;
+flex: 1;
+}
+
+.produto .categoria {
+font-size: 0.7em;
+color: white;
+background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+padding: 5px 11px;
+border-radius: 6px;
+font-weight: 700;
+white-space: nowrap;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+.produto p {
+color: #666;
+font-size: 0.9em;
+margin-bottom: 14px;
+line-height: 1.5;
+min-height: 45px;
+}
+
+.produto-info {
+display: flex;
+flex-direction: column;
+gap: 12px;
+border-top: 2px solid #f0f0f0;
+padding-top: 14px;
+}
+
+.produto .preco {
+font-size: 1.8em;
+color: #FFA500;
+font-weight: 800;
+font-family: 'Montserrat', sans-serif;
+text-transform: uppercase;
+}
+
+.produto .estoque {
+color: #666;
+font-size: 0.85em;
+font-weight: 600;
+}
+
+.estoque-badge {
+display: inline-block;
+background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+padding: 5px 12px;
+border-radius: 6px;
+font-weight: 700;
+color: white;
+text-transform: uppercase;
+font-size: 0.75em;
+}
+
+footer {
+background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+color: white;
+text-align: center;
+padding: 45px 20px;
+margin-top: 60px;
+border-top: 6px solid #FFA500;
+position: relative;
+}
+
+footer::before {
+content: '';
+position: absolute;
+top: -6px;
+left: 0;
+width: 100%;
+height: 2px;
+background: repeating-linear-gradient(90deg,
+#FFA500,
+#FFA500 15px,
+transparent 15px,
+transparent 30px);
+}
+
+footer p {
+margin: 10px 0;
+font-size: 0.95em;
+opacity: 0.85;
+font-weight: 500;
+}
+
+.empty-state {
+grid-column: 1 / -1;
+text-align: center;
+padding: 80px 20px;
+color: #999;
+}
+
+.empty-state p {
+font-size: 1.4em;
+font-weight: 700;
+}
+
+@media (max-width: 768px) {
+header h1 {
+font-size: 2.2em;
+}
+
+header p {
+font-size: 1em;
+}
+
+.nav a {
+margin: 0;
+padding: 15px 18px;
+font-size: 0.8em;
+}
+
+.categorias {
+padding: 20px;
+}
+
+.categorias-title {
+font-size: 1.2em;
+}
+
+.categorias button {
+padding: 10px 16px;
+font-size: 0.8em;
+}
+
+.produtos {
+grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+gap: 16px;
+}
+
+.produto {
+padding: 16px;
+}
+
+.produto h3 {
+font-size: 1em;
+}
+}
+</style>
+</head>
+
+<body>
+    <header>
+        <h1>🛒 Armazém Parada Obrigatória</h1>
+        <p>✨ Qualidade e preço baixo você encontra aqui! ✨</p>
+    </header>
+
+    <nav class="nav">
+        <a href="index.html">🏠 Início</a>
+        <a href="login.html">👤 Login</a>
+        <a href="cadastro.html">📝 Cadastre-se</a>
+        <a href="admin-login.html">⚙️ Área Admin</a>
+    </nav>
+
+    <div class="container">
+        <div class="categorias">
+            <div class="categorias-title">🏪 Categorias</div>
+            <button onclick="filtrar('')" class="ativa" id="btn-todos">Todos os Produtos</button>
+            <button onclick="filtrar('açougue')" id="btn-acougue">🥩 Açougue</button>
+            <button onclick="filtrar('hortifruti')" id="btn-hortifruti">🥬 Hortifruti</button>
+            <button onclick="filtrar('padaria')" id="btn-padaria">🍞 Padaria</button>
+            <button onclick="filtrar('bebidas')" id="btn-bebidas">🥤 Bebidas</button>
+            <button onclick="filtrar('mercearia')" id="btn-mercearia">🛍️ Mercearia</button>
+            <button onclick="filtrar('laticínios')" id="btn-laticinios">🧈 Laticínios</button>
+            <button onclick="filtrar('limpeza')" id="btn-limpeza">🧹 Limpeza</button>
+        </div>
+
+        <div class="produtos" id="produtos"></div>
+    </div>
+
+    <footer>
+        <p>📍 Avenida Principal, 100 - Centro | 📞 Tel: (51) 99999-9999</p>
+        <p>&copy; 2024 Armazém Parada Obrigatória - Todos os direitos reservados ®</p>
+    </footer>
+
+    <script>
+        let todosProdutos = [];
+
+        async function carregarProdutos() {
+            const resp = await fetch('/api/produtos');
+            todosProdutos = await resp.json();
+            exibirProdutos(todosProdutos);
+        }
+
+        function exibirProdutos(produtos) {
+            const div = document.getElementById('produtos');
+            if (produtos.length === 0) {
+                div.innerHTML = '<div class="empty-state"><p>🔍 Nenhum produto encontrado nesta categoria</p></div>';
+                return;
+            }
+            div.innerHTML = produtos.map(p => `
+                <div class="produto">
+                    <div class="produto-header">
+                        <h3>${p.nome}</h3>
+                        <span class="categoria">${p.categoria}</span>
+                    </div>
+                    <p>${p.descricao || 'Produto de qualidade'}</p>
+                    <div class="produto-info">
+                        <div class="preco">R$ ${p.preco.toFixed(2).replace('.', ',')}</div>
+                        <div class="estoque"><span class="estoque-badge">📦 ${p.quantidade} ${p.unidade}</span></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filtrar(categoria) {
+            // Atualizar botões
+            document.querySelectorAll('.categorias button').forEach(b => b.classList.remove('ativa'));
+            if (categoria === '') {
+                document.getElementById('btn-todos').classList.add('ativa');
+            } else {
+                const btn = document.querySelector(`button[onclick="filtrar('${categoria}')"]`);
+                if (btn) btn.classList.add('ativa');
+            }
+
+            // Filtrar produtos
+            if (categoria === '') {
+                exibirProdutos(todosProdutos);
+            } else {
+                const filtrados = todosProdutos.filter(p => p.categoria === categoria);
+                exibirProdutos(filtrados);
+            }
+        }
+
+        carregarProdutos();
+    </script>
+</body>
+
+</html>

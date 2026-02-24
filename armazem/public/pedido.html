@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos - Armazém Parada Obrigatória</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Montserrat:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f8f8;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+            border-bottom: 8px solid #FFA500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(255, 165, 0, 0.05) 10px,
+                    rgba(255, 165, 0, 0.05) 20px);
+            pointer-events: none;
+        }
+
+        header>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            color: #FFA500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .nav {
+            background: #1a1a1a;
+            padding: 0;
+            text-align: center;
+            border-bottom: 4px solid #FFA500;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 18px 25px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .nav a:hover {
+            color: #FFA500;
+            background: rgba(255, 165, 0, 0.1);
+        }
+
+        .nav button {
+            background: linear-gradient(135deg, #c00 0%, #900 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-left: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .nav button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(200, 0, 0, 0.3);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 35px 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #FFA500;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            color: #1a1a1a;
+            font-size: 1.6em;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 3px solid #FFA500;
+            padding-bottom: 12px;
+        }
+
+        .card h3 {
+            margin: 20px 0 15px 0;
+            color: #1a1a1a;
+            font-size: 1.2em;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-cliente {
+            background: linear-gradient(135deg, #FFF9F0 0%, #FFF5E6 100%);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #FFA500;
+        }
+
+        .info-cliente p {
+            margin: 8px 0;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .info-cliente strong {
+            color: #1a1a1a;
+        }
+
+        .endereco-display {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #FFA500;
+        }
+
+        .endereco-display p {
+            margin: 8px 0;
+            color: #666;
+        }
+
+        .endereco-display strong {
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+
+        .form-pedido {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 12px;
+            align-items: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #333;
+            font-weight: 700;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #FFA500;
+            box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.1);
+        }
+
+        .form-pedido button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .form-pedido button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 165, 0, 0.3);
+        }
+
+        #infoProduto {
+            display: none;
+            background: linear-gradient(135deg, #FFF9F0 0%, #FFF5E6 100%);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 4px solid #FFA500;
+        }
+
+        #infoProduto p {
+            margin: 8px 0;
+            color: #666;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        }
+
+        th {
+            color: white;
+            padding: 14px;
+            text-align: left;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9em;
+            border-bottom: 3px solid #FFA500;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #eee;
+            color: #666;
+        }
+
+        tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+
+        .btn-remover {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-remover:hover {
+            transform: scale(1.05);
+            box-shadow: 0 3px 10px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-promo {
+            padding: 8px 14px;
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            white-space: nowrap;
+        }
+
+        .btn-promo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 165, 0, 0.4);
+        }
+
+        .btn-editar {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .btn-editar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 165, 0, 0.3);
+        }
+
+        .totais {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #FFA500;
+            text-align: right;
+        }
+
+        .total-item {
+            margin: 10px 0;
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .total-final {
+            margin: 15px 0 0 0;
+            color: white;
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 1.3em;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .botoes-acao {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .botoes-acao button {
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .btn-finalizar {
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            color: white;
+        }
+
+        .btn-finalizar:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 165, 0, 0.3);
+        }
+
+        .btn-limpar {
+            background: #ddd;
+            color: #333;
+        }
+
+        .btn-limpar:hover {
+            background: #999;
+            color: white;
+        }
+
+        .mensagem {
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 6px;
+            display: none;
+            font-weight: 600;
+            border-left: 6px solid;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mensagem.erro {
+            background: #ffebee;
+            color: #c00;
+            border-left-color: #c00;
+        }
+
+        .mensagem.sucesso {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left-color: #2e7d32;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 35px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            color: #333;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            border-top: 6px solid #FFA500;
+        }
+
+        .modal-content h2 {
+            color: #1a1a1a;
+            font-size: 1.6em;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 0 20px 0;
+            border-bottom: 3px solid #FFA500;
+            padding-bottom: 12px;
+        }
+
+        .modal-form-group {
+            margin-bottom: 16px;
+        }
+
+        .modal-form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 700;
+            color: #333;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .modal-form-group input:focus {
+            outline: none;
+            border-color: #FFA500;
+            box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.1);
+        }
+
+        .modal-botoes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .modal-botoes button {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .modal-salvar {
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            color: white;
+        }
+
+        .modal-salvar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 165, 0, 0.3);
+        }
+
+        .modal-cancelar {
+            background: #ddd;
+            color: #333;
+        }
+
+        .modal-cancelar:hover {
+            background: #999;
+            color: white;
+        }
+
+        .modal-qr {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-qr-content {
+            background: white;
+            padding: 35px;
+            border-radius: 10px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            border-top: 6px solid #FFA500;
+        }
+
+        .modal-qr-content h2 {
+            color: #1a1a1a;
+            font-size: 1.6em;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 0 15px 0;
+        }
+
+        .qr-container {
+            margin: 20px 0;
+        }
+
+        #qrcodeCanvas {
+            border: 3px solid #FFA500;
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+        }
+
+        #pixKey {
+            font-size: 0.8em;
+            color: #666;
+            word-break: break-all;
+            margin: 15px 0;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            border-left: 4px solid #FFA500;
+        }
+
+        .btn-ok {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .btn-ok:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 165, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .container {
+                padding: 20px 15px;
+            }
+
+            .form-pedido {
+                grid-template-columns: 1fr;
+            }
+
+            .form-pedido button {
+                grid-column: 1 / -1;
+            }
+
+            .botoes-acao {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            th,
+            td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>🛒 Armazém Parada Obrigatória</h1>
+    </header>
+
+    <nav class="nav">
+        <a href="index.html">🏠 Produtos</a>
+        <button onclick="logout()">🚪 Sair</button>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h2>👤 Minha Conta</h2>
+            <div class="info-cliente">
+                <p><strong>Cliente:</strong> <span id="nomeCliente"></span></p>
+                <p><strong>Email:</strong> <span id="emailCliente"></span></p>
+            </div>
+
+            <h3>📍 Endereço de Entrega</h3>
+            <div class="endereco-display">
+                <p><strong>Endereço:</strong> <span id="enderecoExibir"></span></p>
+                <p><strong>Número:</strong> <span id="numeroExibir"></span></p>
+                <p><strong>Bairro:</strong> <span id="bairroExibir"></span></p>
+                <p><strong>Cidade:</strong> <span id="cidadeExibir"></span></p>
+                <p><strong>CEP:</strong> <span id="cepExibir"></span></p>
+            </div>
+            <button class="btn-editar" onclick="abrirModalEditarEndereco()">✏️ Editar Endereço</button>
+        </div>
+
+        <div class="modal-overlay" id="modalEditarEndereco">
+            <div class="modal-content">
+                <h2>📍 Editar Endereço</h2>
+
+                <div class="modal-form-group">
+                    <label for="editEndereco">Endereço *</label>
+                    <input type="text" id="editEndereco" placeholder="Ex: Rua Principal">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="modal-form-group">
+                        <label for="editNumero">Número *</label>
+                        <input type="text" id="editNumero" placeholder="Ex: 123">
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="editBairro">Bairro *</label>
+                        <input type="text" id="editBairro" placeholder="Ex: Centro">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="modal-form-group">
+                        <label for="editCidade">Cidade *</label>
+                        <input type="text" id="editCidade" placeholder="Ex: Porto Alegre">
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="editCep">CEP</label>
+                        <input type="text" id="editCep" placeholder="Ex: 90000-000">
+                    </div>
+                </div>
+
+                <div id="mensagemEditarEndereco" class="mensagem" style="margin-bottom: 15px;"></div>
+
+                <div class="modal-botoes">
+                    <button class="modal-salvar" onclick="salvarEndereco()">💾 Salvar</button>
+                    <button class="modal-cancelar" onclick="fecharModalEditarEndereco()">❌ Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🛒 Fazer Novo Pedido</h2>
+            <div class="form-pedido">
+                <div class="form-group">
+                    <label for="produtoSelect">Produto:</label>
+                    <select id="produtoSelect">
+                        <option value="">Selecione um produto...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="quantidade">Quantidade:</label>
+                    <input type="number" id="quantidade" value="1" min="1">
+                </div>
+                <button onclick="adicionarAoCarrinho()">➕ Adicionar</button>
+            </div>
+            <div id="infoProduto">
+                <p><strong>Preço Unitário:</strong> R$ <span id="precoUnitario">0,00</span></p>
+                <p><strong>Estoque Disponível:</strong> <span id="estoqueDisponivel"></span></p>
+            </div>
+            <div id="mensagemPedido" class="mensagem"></div>
+        </div>
+
+        <div class="card">
+            <h2>🛍️ Seu Carrinho</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Qtd</th>
+                        <th>Preço Unitário</th>
+                        <th>Subtotal</th>
+                        <th>Valor Final</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaCarrinho">
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #999; padding: 30px;">Carrinho vazio</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="totais">
+                <div class="total-item">
+                    <label for="formaPagamento"><strong>Forma de Pagamento:</strong></label>
+                    <select id="formaPagamento"
+                        style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; margin-top: 8px; font-family: 'Poppins', sans-serif;">
+                        <option value="">Selecione uma forma de pagamento...</option>
+                        <option value="Dinheiro">💵 Dinheiro</option>
+                        <option value="Débito">🏧 Débito</option>
+                        <option value="Crédito">💳 Crédito</option>
+                        <option value="Pix">📱 PIX</option>
+                        <option value="Vale">📄 Cheque/Vale</option>
+                    </select>
+                </div>
+                <div class="total-final">
+                    Total: R$ <span id="totalCarrinho">0,00</span>
+                </div>
+            </div>
+
+            <div class="botoes-acao">
+                <button class="btn-finalizar" onclick="finalizarPedido()">✅ Finalizar Pedido</button>
+                <button class="btn-limpar" onclick="limparCarrinho()">🗑️ Limpar Carrinho</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🏷️ Promoções Disponíveis</h2>
+            <div id="promoesList" style="display: grid; gap: 12px;">
+                <p style="color: #999; padding: 20px; text-align: center;">Carregando promoções...</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📦 Produtos Disponíveis</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Categoria</th>
+                        <th>Preço</th>
+                        <th>Estoque</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaProdutos">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal-qr" id="modalQRCode">
+        <div class="modal-qr-content">
+            <h2>💳 Pagamento PIX</h2>
+            <p>Escaneie o código QR com seu celular para pagar:</p>
+            <div class="qr-container">
+                <canvas id="qrcodeCanvas"></canvas>
+            </div>
+            <p id="pixKey"></p>
+            <p style="color: #666; font-weight: 600;">Valor: R$ <span id="pixAmount">0,00</span></p>
+            <button class="btn-ok" onclick="fecharModalQRCode()">✓ Entendi</button>
+        </div>
+    </div>
+
+    <script>
+        const cliente = JSON.parse(localStorage.getItem('cliente'));
+
+        if (!cliente) {
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('nomeCliente').textContent = cliente.nome;
+        document.getElementById('emailCliente').textContent = cliente.email;
+
+        let produtos = [];
+        let produtoSelecionado = null;
+        let carrinho = [];
+        let promocoes = [];
+
+        async function carregarDadosCliente() {
+            try {
+                const resp = await fetch(`/api/cliente/${cliente.id}`);
+                const dadosCompletos = await resp.json();
+
+                if (dadosCompletos) {
+                    document.getElementById('enderecoExibir').textContent = dadosCompletos.endereco || 'Não informado';
+                    document.getElementById('numeroExibir').textContent = dadosCompletos.numero || '-';
+                    document.getElementById('bairroExibir').textContent = dadosCompletos.bairro || 'Não informado';
+                    document.getElementById('cidadeExibir').textContent = dadosCompletos.cidade || 'Não informado';
+                    document.getElementById('cepExibir').textContent = dadosCompletos.cep || 'Não informado';
+                }
+            } catch (err) {
+                console.error('Erro ao carregar dados do cliente:', err);
+            }
+        }
+
+        function abrirModalEditarEndereco() {
+            const endereco = document.getElementById('enderecoExibir').textContent;
+            const numero = document.getElementById('numeroExibir').textContent;
+            const bairro = document.getElementById('bairroExibir').textContent;
+            const cidade = document.getElementById('cidadeExibir').textContent;
+            const cep = document.getElementById('cepExibir').textContent;
+
+            document.getElementById('editEndereco').value = endereco !== 'Não informado' ? endereco : '';
+            document.getElementById('editNumero').value = numero !== '-' ? numero : '';
+            document.getElementById('editBairro').value = bairro !== 'Não informado' ? bairro : '';
+            document.getElementById('editCidade').value = cidade !== 'Não informado' ? cidade : '';
+            document.getElementById('editCep').value = cep !== 'Não informado' ? cep : '';
+
+            document.getElementById('modalEditarEndereco').style.display = 'flex';
+        }
+
+        function fecharModalEditarEndereco() {
+            document.getElementById('modalEditarEndereco').style.display = 'none';
+        }
+
+        async function salvarEndereco() {
+            const endereco = document.getElementById('editEndereco').value.trim();
+            const numero = document.getElementById('editNumero').value.trim();
+            const bairro = document.getElementById('editBairro').value.trim();
+            const cidade = document.getElementById('editCidade').value.trim();
+            const cep = document.getElementById('editCep').value.trim();
+
+            if (!endereco || !numero || !bairro || !cidade) {
+                const msg = document.getElementById('mensagemEditarEndereco');
+                msg.className = 'mensagem erro';
+                msg.textContent = '❌ Preencha todos os campos obrigatórios!';
+                msg.style.display = 'block';
+                return;
+            }
+
+            try {
+                const resp = await fetch(`/api/cliente/${cliente.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        endereco,
+                        numero,
+                        bairro,
+                        cidade,
+                        cep: cep || null
+                    })
+                });
+
+                const result = await resp.json();
+                const msg = document.getElementById('mensagemEditarEndereco');
+
+                if (result.sucesso) {
+                    document.getElementById('enderecoExibir').textContent = endereco;
+                    document.getElementById('numeroExibir').textContent = numero;
+                    document.getElementById('bairroExibir').textContent = bairro;
+                    document.getElementById('cidadeExibir').textContent = cidade;
+                    document.getElementById('cepExibir').textContent = cep || '-';
+
+                    msg.className = 'mensagem sucesso';
+                    msg.textContent = '✅ Endereço atualizado com sucesso!';
+                    msg.style.display = 'block';
+
+                    setTimeout(() => {
+                        fecharModalEditarEndereco();
+                    }, 1500);
+                } else {
+                    msg.className = 'mensagem erro';
+                    msg.textContent = '❌ ' + (result.erro || 'Erro ao atualizar endereço');
+                    msg.style.display = 'block';
+                }
+            } catch (err) {
+                const msg = document.getElementById('mensagemEditarEndereco');
+                msg.className = 'mensagem erro';
+                msg.textContent = '❌ Erro ao atualizar endereço';
+                msg.style.display = 'block';
+                console.error('Erro:', err);
+            }
+        }
+
+        carregarProdutos();
+        carregarDadosCliente();
+
+        // Carregar carrinho do localStorage se existir
+        setTimeout(() => {
+            const carrinhoLocalStorage = JSON.parse(localStorage.getItem('carrinho')) || [];
+            if (carrinhoLocalStorage.length > 0) {
+                carrinhoLocalStorage.forEach(item => {
+                    const produtoExistente = carrinho.find(c => c.produto_id === item.produto_id);
+                    if (!produtoExistente) {
+                        carrinho.push(item);
+                    }
+                });
+                atualizarCarrinho();
+                localStorage.removeItem('carrinho');
+            }
+        }, 1000);
+
+        async function carregarProdutos() {
+            const resp = await fetch('/api/produtos');
+            produtos = await resp.json();
+
+            // Carregar promoções
+            const respPromo = await fetch('/api/promocoes');
+            promocoes = await respPromo.json();
+
+            const select = document.getElementById('produtoSelect');
+            select.innerHTML = '<option value="">Selecione um produto...</option>';
+
+            produtos.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = p.nome + ' - R$ ' + p.preco.toFixed(2).replace('.', ',') + ' (' + p.quantidade + ' ' + p.unidade + ')';
+                select.appendChild(option);
+            });
+
+            exibirTabela();
+            exibirPromocoes();
+        }
+
+        function exibirTabela() {
+            const tbody = document.getElementById('tabelaProdutos');
+            tbody.innerHTML = '';
+
+            produtos.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + p.nome + '</td><td>' + p.categoria + '</td><td>R$ ' + p.preco.toFixed(2).replace('.', ',') + '</td><td>' + p.quantidade + ' ' + p.unidade + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function exibirPromocoes() {
+            const listaPromo = document.getElementById('promoesList');
+            if (!promocoes || promocoes.length === 0) {
+                listaPromo.innerHTML = '<p style="color: #999; padding: 20px; text-align: center;">Nenhuma promoção ativa no momento</p>';
+                return;
+            }
+
+            listaPromo.innerHTML = promocoes.map(p => {
+                const produtoPromo = produtos.find(pd => pd.id === p.produto_id);
+                if (!produtoPromo) return '';
+
+                const precoUnitario = produtoPromo.preco;
+                const economiaMaxima = p.quantidade * precoUnitario;
+                const economia = economiaMaxima - p.preco_combo;
+                const economiaPercent = Math.round((economia / economiaMaxima) * 100);
+
+                return `<div style="background: linear-gradient(135deg, #FFF9E6 0%, #FFFACD 100%); border-left: 6px solid #FFA500; padding: 16px; border-radius: 8px; display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <div>
+                        <strong style="color: #1a1a1a; font-size: 1.1em;">🏷️ ${p.nome}</strong>
+                        <p style="color: #666; margin: 8px 0 4px 0; font-size: 0.95em;"><strong>Combo: ${p.quantidade}x por R$ ${p.preco_combo.toFixed(2).replace('.', ',')}</strong></p>
+                        <p style="color: #996600; font-size: 0.9em; margin: 0;"><strong>Desconto: ${economiaPercent}% - Economize R$ ${economia.toFixed(2).replace('.', ',')}</strong></p>
+                        <p style="color: #999; font-size: 0.85em; margin-top: 4px;">${p.descricao}</p>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                        <div style="background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%); color: white; padding: 14px 18px; border-radius: 6px; font-weight: 700; font-size: 1.15em; text-align: center; line-height: 1;">
+                            R$ ${p.preco_combo.toFixed(2).replace('.', ',')}
+                        </div>
+                        <button class="btn-promo" onclick="adicionarPromocaoCarrinho(${p.produto_id}, ${p.quantidade}, '${p.nome}', '${p.descricao}')">➕ Adicionar Combo</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        document.getElementById('produtoSelect').addEventListener('change', function () {
+            const id = parseInt(this.value);
+            const infoDiv = document.getElementById('infoProduto');
+
+            if (id) {
+                produtoSelecionado = produtos.find(function (p) { return p.id === id; });
+                document.getElementById('precoUnitario').textContent = produtoSelecionado.preco.toFixed(2).replace('.', ',');
+                document.getElementById('estoqueDisponivel').textContent = produtoSelecionado.quantidade + ' ' + produtoSelecionado.unidade;
+                document.getElementById('quantidade').max = produtoSelecionado.quantidade;
+                document.getElementById('quantidade').value = 1;
+                infoDiv.style.display = 'block';
+            } else {
+                produtoSelecionado = null;
+                infoDiv.style.display = 'none';
+            }
+        });
+
+        function adicionarAoCarrinho() {
+            const msg = document.getElementById('mensagemPedido');
+            const quantidade = parseInt(document.getElementById('quantidade').value);
+
+            if (!produtoSelecionado) {
+                msg.className = 'mensagem erro';
+                msg.textContent = 'Selecione um produto!';
+                msg.style.display = 'block';
+                return;
+            }
+
+            if (quantidade < 1 || quantidade > produtoSelecionado.quantidade) {
+                msg.className = 'mensagem erro';
+                msg.textContent = 'Quantidade inválida! Máximo: ' + produtoSelecionado.quantidade + ' ' + produtoSelecionado.unidade;
+                msg.style.display = 'block';
+                return;
+            }
+
+            const itemExistente = carrinho.find(item => item.produto_id === produtoSelecionado.id);
+
+            if (itemExistente) {
+                if (itemExistente.quantidade + quantidade <= produtoSelecionado.quantidade) {
+                    itemExistente.quantidade += quantidade;
+                } else {
+                    msg.className = 'mensagem erro';
+                    msg.textContent = 'Quantidade total superior ao estoque disponível!';
+                    msg.style.display = 'block';
+                    return;
+                }
+            } else {
+                carrinho.push({
+                    produto_id: produtoSelecionado.id,
+                    nome: produtoSelecionado.nome,
+                    preco: produtoSelecionado.preco,
+                    quantidade: quantidade,
+                    unidade: produtoSelecionado.unidade
+                });
+            }
+
+            msg.className = 'mensagem sucesso';
+            msg.textContent = produtoSelecionado.nome + ' adicionado ao carrinho!';
+            msg.style.display = 'block';
+
+            document.getElementById('produtoSelect').value = '';
+            document.getElementById('quantidade').value = 1;
+            document.getElementById('infoProduto').style.display = 'none';
+            produtoSelecionado = null;
+
+            atualizarCarrinho();
+        }
+
+        function adicionarPromocaoCarrinho(produtoId, quantidade, nomeProduto, descricaoPromo) {
+            const msg = document.getElementById('mensagemPedido');
+            const produtoParaAdicionar = produtos.find(p => p.id === produtoId);
+
+            if (!produtoParaAdicionar) {
+                msg.className = 'mensagem erro';
+                msg.textContent = 'Produto da promoção não encontrado!';
+                msg.style.display = 'block';
+                return;
+            }
+
+            if (quantidade > produtoParaAdicionar.quantidade) {
+                msg.className = 'mensagem erro';
+                msg.textContent = 'Estoque insuficiente para este combo! Disponível: ' + produtoParaAdicionar.quantidade + ' ' + produtoParaAdicionar.unidade;
+                msg.style.display = 'block';
+                return;
+            }
+
+            const itemExistente = carrinho.find(item => item.produto_id === produtoId);
+
+            if (itemExistente) {
+                if (itemExistente.quantidade + quantidade <= produtoParaAdicionar.quantidade) {
+                    itemExistente.quantidade += quantidade;
+                } else {
+                    msg.className = 'mensagem erro';
+                    msg.textContent = 'Quantidade total superior ao estoque disponível!';
+                    msg.style.display = 'block';
+                    return;
+                }
+            } else {
+                carrinho.push({
+                    produto_id: produtoId,
+                    nome: produtoParaAdicionar.nome,
+                    preco: produtoParaAdicionar.preco,
+                    quantidade: quantidade,
+                    unidade: produtoParaAdicionar.unidade,
+                    promocaoDescricao: descricaoPromo
+                });
+            }
+
+            msg.className = 'mensagem sucesso';
+            msg.textContent = '✨ Combo ' + descricaoPromo + ' adicionado ao carrinho com sucesso! Economize muito!';
+            msg.style.display = 'block';
+
+            atualizarCarrinho();
+        }
+
+        function atualizarCarrinho() {
+            const tbody = document.getElementById('tabelaCarrinho');
+            let total = 0;
+
+            if (carrinho.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999; padding: 30px;">Carrinho vazio</td></tr>';
+                document.getElementById('totalCarrinho').textContent = '0,00';
+                return;
+            }
+
+            tbody.innerHTML = carrinho.map((item, index) => {
+                // Verificar se há promoção para este produto
+                const promo = promocoes.find(p => p.produto_id === item.produto_id);
+                let subtotal = item.preco * item.quantidade;
+                let desconto = 0;
+                let precoComDesconto = subtotal;
+                let linhaDesconto = '';
+
+                if (promo && item.quantidade >= promo.quantidade) {
+                    // Calcular quantos combos completam e aplicar o preço promocional
+                    const qtdCombos = Math.floor(item.quantidade / promo.quantidade);
+                    const restante = item.quantidade % promo.quantidade;
+                    precoComDesconto = (qtdCombos * promo.preco_combo) + (restante * item.preco);
+                    desconto = subtotal - precoComDesconto;
+                    linhaDesconto = `<tr style="background: #fff9e6; font-size: 0.85em; color: #996600;">
+                        <td colspan="5" style="text-align: right; padding-right: 10px;"><strong>🏷️ Desconto ${promo.descricao}:</strong></td>
+                        <td><strong>-R$ ${desconto.toFixed(2).replace('.', ',')}</strong></td>
+                    </tr>`;
+                }
+
+                total += precoComDesconto;
+
+                return `<tr>
+                    <td>${item.nome}</td>
+                    <td>${item.quantidade} ${item.unidade}</td>
+                    <td>R$ ${item.preco.toFixed(2).replace('.', ',')}</td>
+                    <td>R$ ${subtotal.toFixed(2).replace('.', ',')}</td>
+                    <td>${promo && item.quantidade >= promo.quantidade ? `<strong style="color: #2e7d32;">R$ ${precoComDesconto.toFixed(2).replace('.', ',')}</strong>` : '-'}</td>
+                    <td><button class="btn-remover" onclick="removerDoCarrinho(${index})">🗑️ Remover</button></td>
+                </tr>${linhaDesconto}`;
+            }).join('');
+
+            document.getElementById('totalCarrinho').textContent = total.toFixed(2).replace('.', ',');
+        }
+
+        function removerDoCarrinho(index) {
+            carrinho.splice(index, 1);
+            atualizarCarrinho();
+        }
+
+        function limparCarrinho() {
+            if (confirm('Tem certeza que deseja limpar o carrinho?')) {
+                carrinho = [];
+                atualizarCarrinho();
+                document.getElementById('mensagemPedido').style.display = 'none';
+            }
+        }
+
+        async function finalizarPedido() {
+            const msg = document.getElementById('mensagemPedido');
+            const formaPagamento = document.getElementById('formaPagamento').value;
+
+            if (carrinho.length === 0) {
+                msg.className = 'mensagem erro';
+                msg.textContent = 'Carrinho vazio! Adicione pelo menos um produto.';
+                msg.style.display = 'block';
+                return;
+            }
+
+            if (!formaPagamento) {
+                msg.className = 'mensagem erro';
+                msg.textContent = 'Selecione uma forma de pagamento!';
+                msg.style.display = 'block';
+                return;
+            }
+
+            try {
+                let totalGeral = 0;
+                let itemsSucesso = 0;
+
+                for (let item of carrinho) {
+                    const dados = {
+                        cliente_id: cliente.id,
+                        produto_id: item.produto_id,
+                        quantidade: item.quantidade,
+                        forma_pagamento: formaPagamento
+                    };
+
+                    const resp = await fetch('/api/pedidos', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dados)
+                    });
+
+                    const result = await resp.json();
+
+                    if (result.sucesso) {
+                        totalGeral += result.total;
+                        itemsSucesso++;
+                    } else {
+                        msg.className = 'mensagem erro';
+                        msg.textContent = 'Erro ao processar item: ' + result.erro;
+                        msg.style.display = 'block';
+                        return;
+                    }
+                }
+
+                if (itemsSucesso === carrinho.length) {
+                    const totalFormatado = totalGeral.toFixed(2).replace('.', ',');
+                    msg.className = 'mensagem sucesso';
+                    msg.innerHTML = 'Pedido realizado com sucesso!<br>Total: R$ ' + totalFormatado + '<br>Pagamento: ' + formaPagamento + '<br>Seus ' + carrinho.length + ' item(ns) foram enviados para o mercado.';
+                    msg.style.display = 'block';
+
+                    if (formaPagamento === 'Pix') {
+                        setTimeout(() => {
+                            gerarQRCodePix(totalGeral);
+                        }, 1000);
+                    }
+
+                    carrinho = [];
+                    atualizarCarrinho();
+                    carregarProdutos();
+
+                    document.getElementById('produtoSelect').value = '';
+                    document.getElementById('quantidade').value = 1;
+                    document.getElementById('formaPagamento').value = '';
+                }
+            } catch (err) {
+                msg.className = 'mensagem erro';
+                msg.textContent = 'Erro ao fazer pedido!';
+                msg.style.display = 'block';
+            }
+        }
+
+        function gerarQRCodePix(total) {
+            const pixKey = '00020126580014br.gov.bcb.pix0136' + Math.random().toString(36).substring(2, 15) + '52040000530398654061' + total.toFixed(2).replace('.', '') + '5303986540610605***63041D3D';
+
+            const qr = new QRious({
+                element: document.getElementById('qrcodeCanvas'),
+                value: pixKey,
+                size: 300,
+                level: 'H',
+                mime: 'image/png'
+            });
+
+            document.getElementById('pixKey').textContent = pixKey;
+            document.getElementById('pixAmount').textContent = total.toFixed(2).replace('.', ',');
+            document.getElementById('modalQRCode').style.display = 'flex';
+        }
+
+        function fecharModalQRCode() {
+            document.getElementById('modalQRCode').style.display = 'none';
+        }
+
+        function logout() {
+            localStorage.removeItem('cliente');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+
+</html>

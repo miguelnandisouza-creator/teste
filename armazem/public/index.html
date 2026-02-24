@@ -652,6 +652,28 @@
         </div>
     </div>
 
+    <!-- Modal para escolher quantidade ao clicar no produto -->
+    <div class="modal-carrinho" id="modalProduto" style="display:none;" onclick="fecharProdutoModal(event)">
+        <div class="modal-cargo" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="produtoTitulo">Produto</h2>
+            </div>
+            <div class="modal-body">
+                <div style="display:flex;flex-direction:column;gap:12px;padding:10px;">
+                    <div id="produtoPreco" style="font-weight:800;font-size:1.4em;color:#FFA500">R$ 0,00</div>
+                    <div>Disponível: <span id="selectorDisponivel">0</span></div>
+                    <div style="display:flex;align-items:center;gap:12px;justify-content:center">
+                        <button class="btn-remover-item" onclick="alterarSelectorQuantidade(-1)">−</button>
+                        <div style="min-width:60px;text-align:center;font-weight:800" id="selectorQuantidade">1</div>
+                        <button class="btn-adicionar" onclick="alterarSelectorQuantidade(1)">+</button>
+                    </div>
+                    <button class="btn-adicionar" onclick="confirmarAdicionarDoSelector()">Adicionar ao
+                        carrinho</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <p>📍 Avenida Principal, 100 - Centro | 📞 Tel: (51) 99999-9999</p>
         <p>&copy; 2024 Armazém Parada Obrigatória - Todos os direitos reservados ®</p>
@@ -704,7 +726,7 @@
                 return;
             }
             div.innerHTML = produtos.map(p => `
-                    <div class="produto">
+                        <div class="produto" onclick="abrirSelectorProduto(${p.id}, '${p.nome.replace(/'/g, "\\'")}', ${p.preco}, ${p.quantidade})">
                         <div class="produto-header">
                             <h3>${p.nome}</h3>
                             <span class="categoria">${p.categoria}</span>
@@ -793,6 +815,38 @@
         function abrirCarrinho() {
             atualizarListaCarrinho();
             document.getElementById('modalCarrinho').style.display = 'flex';
+        }
+
+        // --- Produto selector modal ---
+        function abrirSelectorProduto(id, nome, preco, disponivel) {
+            window.selectorProduto = { id, nome, preco, disponivel, quantidade: 1 };
+            document.getElementById('produtoTitulo').textContent = nome;
+            document.getElementById('produtoPreco').textContent = 'R$ ' + preco.toFixed(2).replace('.', ',');
+            document.getElementById('selectorQuantidade').textContent = '1';
+            document.getElementById('selectorDisponivel').textContent = disponivel;
+            document.getElementById('modalProduto').style.display = 'flex';
+        }
+
+        function fecharProdutoModal(event) {
+            if (!event || event.target.id === 'modalProduto') {
+                document.getElementById('modalProduto').style.display = 'none';
+            }
+        }
+
+        function alterarSelectorQuantidade(delta) {
+            const s = window.selectorProduto;
+            if (!s) return;
+            s.quantidade = Math.max(1, Math.min(s.disponivel || 9999, (s.quantidade || 1) + delta));
+            document.getElementById('selectorQuantidade').textContent = s.quantidade;
+        }
+
+        function confirmarAdicionarDoSelector() {
+            const s = window.selectorProduto;
+            if (!s) return;
+            adicionarProdutoCarrinho(s.id, s.nome, s.preco, s.quantidade);
+            document.getElementById('modalProduto').style.display = 'none';
+            atualizarListaCarrinho();
+            atualizarBadgeCarrinho();
         }
 
         function fecharCarrinho(event) {

@@ -8,10 +8,10 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Banco de dados SQLite
-const db = new sqlite3.Database('./ecommerce.db');
+const db = new sqlite3.Database(path.join(__dirname, '..', 'database', 'ecommerce.db'));
 
 // Criar tabelas
 db.serialize(() => {
@@ -46,8 +46,18 @@ db.serialize(() => {
         quantidade INTEGER,
         categoria TEXT,
         unidade TEXT,
-        codigo_barras TEXT UNIQUE
+        codigo_barras TEXT UNIQUE,
+        imagem LONGTEXT
     )`);
+
+    // Adicionar coluna de imagem se não existir
+    db.run(`ALTER TABLE produtos ADD COLUMN imagem LONGTEXT`, (err) => {
+        if (err && err.message.includes('duplicate column')) {
+            // Coluna já existe, ignorar erro
+        } else if (err) {
+            console.error('Erro ao adicionar coluna de imagem:', err);
+        }
+    });
 
     // Pedidos
     db.run(`CREATE TABLE IF NOT EXISTS pedidos (
@@ -93,19 +103,72 @@ db.serialize(() => {
     db.get("SELECT COUNT(*) as count FROM produtos", (err, row) => {
         if (row.count === 0) {
             const produtos = [
-                ['Arroz 5kg', 'Arroz branco tipo 1 - 5kg', 24.90, 50, 'mercearia', 'un'],
-                ['Feijão Carioca 1kg', 'Feijão carioca', 9.99, 100, 'mercearia', 'kg'],
-                ['Açúcar 1kg', 'Açúcar cristal', 3.49, 80, 'mercearia', 'kg'],
-                ['Café 500g', 'Café torrado e moído', 7.99, 60, 'bebidas', 'un'],
-                ['Leite Integral 1L', 'Leite integral UHT', 4.50, 120, 'laticínios', 'un'],
-                ['Banana Prata (kg)', 'Banana prata por kg', 5.99, 200, 'hortifruti', 'kg'],
-                ['Pão Francês (10un)', 'Pão francês pacote 10un', 6.50, 70, 'padaria', 'un'],
-                ['Água Mineral 1.5L', 'Água mineral sem gás', 2.99, 150, 'bebidas', 'un'],
-                ['Óleo de Soja 900ml', 'Óleo de soja', 8.99, 90, 'mercearia', 'un'],
-                ['Sabão em Pó 1kg', 'Sabão em pó para roupas', 12.90, 60, 'limpeza', 'un']
+                // MERCEARIA
+                ['Arroz Integral 5kg', 'Arroz integral tipo 1 - 5kg', 32.90, 50, 'mercearia', 'un', 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=400&fit=crop&q=80', '7891234001234'],
+                ['Feijão Carioca 1kg', 'Feijão carioca premium', 11.99, 100, 'mercearia', 'kg', 'https://images.unsplash.com/photo-1512621539385-2c0cf99b7800?w=400&h=400&fit=crop&q=80', '7891234002341'],
+                ['Feijão Preto 1kg', 'Feijão preto tipo 1', 12.50, 80, 'mercearia', 'kg', 'https://images.unsplash.com/photo-1585707418624-c7f54ed53859?w=400&h=400&fit=crop&q=80', '7891234003058'],
+                ['Açúcar Cristal 1kg', 'Açúcar cristal refinado', 3.99, 120, 'mercearia', 'kg', 'https://images.unsplash.com/photo-1610271012795-29c4c7cf45dc?w=400&h=400&fit=crop&q=80', '7891234004765'],
+                ['Sal Refinado 1kg', 'Sal refinado iodado', 2.49, 100, 'mercearia', 'un', 'https://images.unsplash.com/photo-1599599810694-b5ac4dd15fcb?w=400&h=400&fit=crop&q=80', '7891234005472'],
+                ['Farinha de Trigo 1kg', 'Farinha de trigo integral', 4.50, 90, 'mercearia', 'un', 'https://images.unsplash.com/photo-1584308666744-24d5f400f6f6?w=400&h=400&fit=crop&q=80', '7891234006189'],
+                ['Macarrão 500g', 'Macarrão tipo penne', 3.99, 150, 'mercearia', 'un', 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&h=400&fit=crop&q=80', '7891234007896'],
+                ['Azeite 500ml', 'Azeite extra virgem', 28.90, 40, 'mercearia', 'un', 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=400&fit=crop&q=80', '7891234008603'],
+                ['Óleo de Soja 900ml', 'Óleo de soja refinado', 8.99, 120, 'mercearia', 'un', 'https://images.unsplash.com/photo-1587224267537-b85e80c78f89?w=400&h=400&fit=crop&q=80', '7891234009310'],
+                ['Vinagre 750ml', 'Vinagre de álcool', 4.50, 80, 'mercearia', 'un', 'https://images.unsplash.com/photo-1535985660195-90bae4c1c59c?w=400&h=400&fit=crop&q=80', '7891234010027'],
+                ['Molho de Tomate 340g', 'Molho de tomate concentrado', 2.99, 200, 'mercearia', 'un', 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&h=400&fit=crop&q=80', '7891234011734'],
+                ['Leite Condensado 395g', 'Leite condensado', 5.50, 100, 'mercearia', 'un', 'https://images.unsplash.com/photo-1568861617036-92fc8b3e3591?w=400&h=400&fit=crop&q=80', '7891234012441'],
+                
+                // BEBIDAS
+                ['Café Coado 500g', 'Café torrado e moído', 9.90, 80, 'bebidas', 'un', 'https://images.unsplash.com/photo-1559056199-641a0ac8b3f4?w=400&h=400&fit=crop&q=80', '7891234013158'],
+                ['Café em Cápsula', 'Café em cápsula premium', 34.90, 50, 'bebidas', 'un', 'https://images.unsplash.com/photo-1575806253481-29e2b4996e0c?w=400&h=400&fit=crop&q=80', '7891234014865'],
+                ['Chá Preto 25 Saches', 'Chá preto variedade', 6.99, 60, 'bebidas', 'un', 'https://images.unsplash.com/photo-1597318030842-b52eab6c0590?w=400&h=400&fit=crop&q=80', '7891234015572'],
+                ['Suco Natural 1L', 'Suco natural de laranja', 7.99, 50, 'bebidas', 'un', 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=400&fit=crop&q=80', '7891234016279'],
+                ['Refrigerante 2L', 'Refrigerante cola', 8.99, 100, 'bebidas', 'un', 'https://images.unsplash.com/photo-1554866585-48cedfbf61dd?w=400&h=400&fit=crop&q=80', '7891234017986'],
+                ['Água Mineral 1.5L', 'Água mineral sem gás', 2.99, 200, 'bebidas', 'un', 'https://images.unsplash.com/photo-1610485064966-d93e97b78dab?w=400&h=400&fit=crop&q=80', '7891234018693'],
+                ['Leite Integral 1L', 'Leite integral UHT', 4.50, 150, 'laticínios', 'un', 'https://images.unsplash.com/photo-1563636619-ce894fbb6b9b?w=400&h=400&fit=crop&q=80', '7891234019400'],
+                
+                // HORTIFRUTI
+                ['Banana Prata (kg)', 'Banana prata extra fresca', 5.99, 250, 'hortifruti', 'kg', 'https://images.unsplash.com/photo-1603643808063-96b991b8b764?w=400&h=400&fit=crop&q=80', '7891234020017'],
+                ['Maçã Gala (kg)', 'Maçã gala importada', 9.99, 150, 'hortifruti', 'kg', 'https://images.unsplash.com/photo-1560806715-da9a02842330?w=400&h=400&fit=crop&q=80', '7891234021724'],
+                ['Laranja Pêra (kg)', 'Laranja pêra selecionada', 4.99, 200, 'hortifruti', 'kg', 'https://images.unsplash.com/photo-1587735639519-c21a76f6f3b5?w=400&h=400&fit=crop&q=80', '7891234022431'],
+                ['Tomate Caqui (kg)', 'Tomate caqui vermelho', 8.99, 120, 'hortifruti', 'kg', 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=400&h=400&fit=crop&q=80', '7891234023148'],
+                ['Alface Crespa (un)', 'Alface crespa hidropônica', 3.99, 80, 'hortifruti', 'un', 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=400&fit=crop&q=80', '7891234024855'],
+                ['Cenoura (kg)', 'Cenoura fresca selecionada', 3.49, 100, 'hortifruti', 'kg', 'https://images.unsplash.com/photo-1447556519635-367e063ffc0c?w=400&h=400&fit=crop&q=80', '7891234025562'],
+                ['Batata Inglesa (kg)', 'Batata inglesa tipo A', 4.99, 150, 'hortifruti', 'kg', 'https://images.unsplash.com/photo-1590594033100-9f60a05a9d82?w=400&h=400&fit=crop&q=80', '7891234026269'],
+                ['Cebola (kg)', 'Cebola roxa selecionada', 5.50, 120, 'hortifruti', 'kg', 'https://images.unsplash.com/photo-1597619437267-ff5caebe2556?w=400&h=400&fit=crop&q=80', '7891234027976'],
+                
+                // PADARIA
+                ['Pão Francês (un)', 'Pão francês saído do forno', 0.80, 500, 'padaria', 'un', 'https://images.unsplash.com/photo-1535920527894-b400b62fe660?w=400&h=400&fit=crop&q=80', '7891234028683'],
+                ['Além Pastel (6un)', 'Além pastel tradicional', 8.99, 100, 'padaria', 'un', 'https://images.unsplash.com/photo-1616147280519-e788d2354644?w=400&h=400&fit=crop&q=80', '7891234029390'],
+                ['Bolo de Chocolate', 'Bolo de chocolate caseiro 500g', 16.90, 50, 'padaria', 'un', 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop&q=80', '7891234030007'],
+                ['Croissant 3un', 'Croissant doce recheado', 12.90, 80, 'padaria', 'un', 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&h=400&fit=crop&q=80', '7891234031714'],
+                ['Pão Integral 400g', 'Pão integral caseiro', 6.50, 60, 'padaria', 'un', 'https://images.unsplash.com/photo-1586190936945-fc5672b0191e?w=400&h=400&fit=crop&q=80', '7891234032421'],
+                ['Biscoito Água e Sal 400g', 'Biscoito integral', 4.99, 100, 'padaria', 'un', 'https://images.unsplash.com/photo-1585080298635-02a3b5ea9d9e?w=400&h=400&fit=crop&q=80', '7891234033128'],
+                
+                // LATICÍNIOS
+                ['Queijo Meia Cura 500g', 'Queijo meia cura fatiado', 28.90, 50, 'laticínios', 'un', 'https://images.unsplash.com/photo-1452195412191-768234609b66?w=400&h=400&fit=crop&q=80', '7891234034835'],
+                ['Iogurte Natural 500ml', 'Iogurte natural integral', 7.99, 80, 'laticínios', 'un', 'https://images.unsplash.com/photo-1488477181946-85a2a11afe19?w=400&h=400&fit=crop&q=80', '7891234035542'],
+                ['Requeijão 200g', 'Requeijão cremoso', 8.50, 100, 'laticínios', 'un', 'https://images.unsplash.com/photo-1605350322401-197c0e16ca5d?w=400&h=400&fit=crop&q=80', '7891234036249'],
+                ['Manteiga 250g', 'Manteiga extra fina', 16.90, 60, 'laticínios', 'un', 'https://images.unsplash.com/photo-1589985643862-16055ee40c6e?w=400&h=400&fit=crop&q=80', '7891234037956'],
+                ['Mozzarella 500g', 'Mozzarella fatiada tipo A', 22.90, 70, 'laticínios', 'un', 'https://images.unsplash.com/photo-1626082927389-6cd097cda687?w=400&h=400&fit=crop&q=80', '7891234038663'],
+                
+                // AÇOUGUE
+                ['Carne Moída 1kg', 'Carne moída vermelha fresca', 32.90, 40, 'açougue', 'kg', 'https://images.unsplash.com/photo-1618885472179-c5f1cc44dce5?w=400&h=400&fit=crop&q=80', '7891234039370'],
+                ['Contra Filé 1kg', 'Contra filé bovino premium', 48.90, 30, 'açougue', 'kg', 'https://images.unsplash.com/photo-1555939594-58d7cb561d1f?w=400&h=400&fit=crop&q=80', '7891234040077'],
+                ['Peito de Frango 1kg', 'Peito de frango congelado', 18.99, 50, 'açougue', 'kg', 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&h=400&fit=crop&q=80', '7891234041784'],
+                ['Linguiça Calabresa 500g', 'Linguiça calabresa fatiada', 15.90, 40, 'açougue', 'un', 'https://images.unsplash.com/photo-1609975289736-a47a0cd6e83a?w=400&h=400&fit=crop&q=80', '7891234042491'],
+                ['Presunto 500g', 'Presunto classe A fatiado', 24.90, 35, 'açougue', 'un', 'https://images.unsplash.com/photo-1585457337503-9ef47acd655c?w=400&h=400&fit=crop&q=80', '7891234043198'],
+                
+                // LIMPEZA
+                ['Sabão em Pó 1kg', 'Sabão em pó para roupa', 12.90, 80, 'limpeza', 'un', 'https://images.unsplash.com/photo-1585829488829-a605c317214d?w=400&h=400&fit=crop&q=80', '7891234044905'],
+                ['Detergente Neutro 500ml', 'Detergente neutro concentrado', 3.99, 150, 'limpeza', 'un', 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400&h=400&fit=crop&q=80', '7891234045612'],
+                ['Desinfetante 1L', 'Desinfetante bactérias e vírus', 5.99, 100, 'limpeza', 'un', 'https://images.unsplash.com/photo-1599599810694-b5ac4dd15fcb?w=400&h=400&fit=crop&q=80', '7891234046319'],
+                ['Papel Higiênico (4 rolos)', 'Papel higiênico dupla camada', 8.99, 200, 'limpeza', 'un', 'https://images.unsplash.com/photo-1566287621715-4d50a5ca4809?w=400&h=400&fit=crop&q=80', '7891234047026'],
+                ['Álcool 70% 1L', 'Álcool 70% para limpeza', 9.90, 80, 'limpeza', 'un', 'https://images.unsplash.com/photo-1599599810694-b5ac4dd15fcb?w=400&h=400&fit=crop&q=80', '7891234048733'],
+                ['Pano de Limpeza 3un', 'Pano multiuso para limpeza', 6.50, 120, 'limpeza', 'un', 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400&h=400&fit=crop&q=80', '7891234049440'],
+                ['Sabonete Líquido 250ml', 'Sabonete líquido antibacteriano', 4.50, 100, 'limpeza', 'un', 'https://images.unsplash.com/photo-1629460488159-23b992074eae?w=400&h=400&fit=crop&q=80', '7891234050057']
             ];
             produtos.forEach(p => {
-                db.run("INSERT INTO produtos (nome, descricao, preco, quantidade, categoria, unidade) VALUES (?, ?, ?, ?, ?, ?)", p);
+                db.run("INSERT INTO produtos (nome, descricao, preco, quantidade, categoria, unidade, imagem, codigo_barras) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", p);
             });
             console.log("Produtos de exemplo inseridos");
         }
@@ -115,7 +178,6 @@ db.serialize(() => {
     db.get("SELECT COUNT(*) as count FROM categorias", (err, row) => {
         if (row.count === 0) {
             const categorias = [
-                ['roupas', 'Vestuário e acessórios'],
                 ['açougue', 'Carnes e derivados'],
                 ['hortifruti', 'Frutas, legumes e verduras'],
                 ['padaria', 'Pães e bolos'],
@@ -129,6 +191,29 @@ db.serialize(() => {
                     [c[0], c[1], new Date().toISOString()]);
             });
             console.log("Categorias de exemplo inseridas");
+        }
+    });
+
+    // Inserir promoções padrão se não existirem
+    db.get("SELECT COUNT(*) as count FROM promocoes", (err, row) => {
+        if (row && row.count === 0) {
+            // Esperar um pouco para os produtos serem inseridos
+            setTimeout(() => {
+                const promocoes = [
+                    [1, 3, 68.70, 'Combo Arroz 3 pacotes'], // Arroz 5kg - 3 por 68,70
+                    [2, 5, 52.90, 'Combo Feijão 5kg'], // Feijão - 5 por 52,90
+                    [7, 6, 35.90, 'Meia dúzia de Pão'], // Pão - 6 por 35,90
+                    [15, 4, 32.90, 'Pacote Café 4un'], // Café - 4 por 32,90
+                    [18, 5, 26.90, 'Kit Laranja 5kg'], // Laranja - 5kg por 26,90
+                    [27, 2, 28.90, 'Duo Queijo'], // Queijo - 2 por 28,90
+                    [30, 3, 89.90, 'Trio de Carnes 3kg'], // Carne moída - 3kg por 89,90
+                    [34, 6, 49.99, 'Pacote Papel Higiênico'] // Papel - 6 por 49,99
+                ];
+                promocoes.forEach(p => {
+                    db.run("INSERT INTO promocoes (produto_id, quantidade, preco_combo, descricao) VALUES (?, ?, ?, ?)", p);
+                });
+                console.log("Promoções de exemplo inseridas");
+            }, 1000);
         }
     });
 });
@@ -153,7 +238,7 @@ app.get('/api/admin/produtos', (req, res) => {
 
 // Listar promoções
 app.get('/api/promocoes', (req, res) => {
-    db.all("SELECT p.*, prod.nome FROM promocoes p JOIN produtos prod ON p.produto_id = prod.id WHERE p.ativa = 1", [], (err, rows) => {
+    db.all("SELECT p.*, prod.nome, prod.imagem FROM promocoes p JOIN produtos prod ON p.produto_id = prod.id WHERE p.ativa = 1", [], (err, rows) => {
         if (err) return res.status(500).json({ erro: err.message });
         res.json(rows || []);
     });
@@ -161,7 +246,7 @@ app.get('/api/promocoes', (req, res) => {
 
 // Listar todas as promoções (admin)
 app.get('/api/admin/promocoes', (req, res) => {
-    db.all("SELECT p.*, prod.nome FROM promocoes p JOIN produtos prod ON p.produto_id = prod.id ORDER BY p.id DESC", [], (err, rows) => {
+    db.all("SELECT p.*, prod.nome, prod.imagem FROM promocoes p JOIN produtos prod ON p.produto_id = prod.id ORDER BY p.id DESC", [], (err, rows) => {
         if (err) return res.status(500).json({ erro: err.message });
         res.json(rows || []);
     });
@@ -258,12 +343,12 @@ app.post('/api/login-admin', (req, res) => {
 
 // Cadastrar produto (admin)
 app.post('/api/produtos', (req, res) => {
-    const { nome, descricao, preco, quantidade, categoria, unidade, codigo_barras } = req.body;
+    const { nome, descricao, preco, quantidade, categoria, unidade, codigo_barras, imagem } = req.body;
     if (!nome || !preco) {
         return res.status(400).json({ erro: "Preencha nome e preço" });
     }
-    db.run("INSERT INTO produtos (nome, descricao, preco, quantidade, categoria, unidade, codigo_barras) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-        [nome, descricao || '', preco, quantidade || 0, categoria || '', unidade || 'un', codigo_barras || ''], function(err) {
+    db.run("INSERT INTO produtos (nome, descricao, preco, quantidade, categoria, unidade, codigo_barras, imagem) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
+        [nome, descricao || '', preco, quantidade || 0, categoria || '', unidade || 'un', codigo_barras || '', imagem || null], function(err) {
         if (err) return res.status(500).json({ erro: err.message });
         // Retornar o produto inserido
         db.get("SELECT * FROM produtos WHERE id = ?", [this.lastID], (err, row) => {
@@ -339,14 +424,22 @@ app.put('/api/pedidos/:id', (req, res) => {
 
 // Editar produto (admin)
 app.put('/api/produtos/:id', (req, res) => {
-    const { nome, descricao, preco, quantidade, categoria, unidade, codigo_barras } = req.body;
+    const { nome, descricao, preco, quantidade, categoria, unidade, codigo_barras, imagem } = req.body;
     const id = req.params.id;
     
-    db.run("UPDATE produtos SET nome = ?, descricao = ?, preco = ?, quantidade = ?, categoria = ?, unidade = ?, codigo_barras = ? WHERE id = ?", 
-        [nome, descricao || '', preco, quantidade || 0, categoria || '', unidade || 'un', codigo_barras || '', id], function(err) {
-        if (err) return res.status(500).json({ erro: err.message });
-        res.json({ sucesso: true });
-    });
+    if (imagem) {
+        db.run("UPDATE produtos SET nome = ?, descricao = ?, preco = ?, quantidade = ?, categoria = ?, unidade = ?, codigo_barras = ?, imagem = ? WHERE id = ?", 
+            [nome, descricao || '', preco, quantidade || 0, categoria || '', unidade || 'un', codigo_barras || '', imagem, id], function(err) {
+            if (err) return res.status(500).json({ erro: err.message });
+            res.json({ sucesso: true });
+        });
+    } else {
+        db.run("UPDATE produtos SET nome = ?, descricao = ?, preco = ?, quantidade = ?, categoria = ?, unidade = ?, codigo_barras = ? WHERE id = ?", 
+            [nome, descricao || '', preco, quantidade || 0, categoria || '', unidade || 'un', codigo_barras || '', id], function(err) {
+            if (err) return res.status(500).json({ erro: err.message });
+            res.json({ sucesso: true });
+        });
+    }
 });
 
 // Deletar produto (admin)
